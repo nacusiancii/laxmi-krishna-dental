@@ -624,6 +624,7 @@
     gap: 36px;
     align-items: start;
   }
+  .booking-grid > * { min-width: 0; }
   .booking-info {
     background: var(--forest-deep);
     color: #fff;
@@ -643,8 +644,9 @@
   .hours-list { list-style: none; margin-bottom: 24px; }
   .hours-list li {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 12px;
+    gap: 2px 12px;
     padding: 11px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.14);
     font-size: 0.9rem;
