@@ -212,7 +212,16 @@
     background: var(--cream);
     padding: 12px 24px 20px;
   }
-  .mobile-menu.open { display: block; }
+  .mobile-menu.open { display: block; animation: menuIn 0.28s var(--ease-out); }
+  .mobile-menu.open a { animation: rise 0.4s var(--ease-out) backwards; }
+  .mobile-menu.open a:nth-child(2) { animation-delay: 0.04s; }
+  .mobile-menu.open a:nth-child(3) { animation-delay: 0.08s; }
+  .mobile-menu.open a:nth-child(4) { animation-delay: 0.12s; }
+  .mobile-menu.open a:nth-child(5) { animation-delay: 0.16s; }
+  @keyframes menuIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  .menu-btn .icon-close, .menu-btn[aria-expanded="true"] .icon-open { display: none; }
+  .menu-btn[aria-expanded="true"] .icon-close { display: block; animation: spinIn 0.3s var(--ease-out); }
+  @keyframes spinIn { from { transform: rotate(-90deg); opacity: 0; } to { transform: none; opacity: 1; } }
   .mobile-menu a {
     display: block;
     padding: 12px 0;
@@ -642,6 +651,48 @@
   }
   .hours-list li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
   .hours-list span:first-child { color: var(--gold-light); font-weight: 600; }
+  .hours-list li { transition: background 0.3s ease; }
+  .hours-list li.now {
+    background: rgba(232, 213, 172, 0.12);
+    margin: 0 -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: 10px;
+  }
+
+  .open-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+  .open-status:empty { display: none; }
+  .open-status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold-light);
+  }
+  .open-status.is-open::before { background: #4ADE80; animation: dot 2s infinite; }
+  @keyframes dot {
+    0%   { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+  }
+
+  /* brief gold ring on the treatment field after "Book consultation" */
+  @keyframes flash {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(182, 141, 64, 0); }
+    30%      { box-shadow: 0 0 0 5px rgba(182, 141, 64, 0.35); border-color: var(--gold); }
+  }
+  select.flash { animation: flash 1.6s ease 2; }
 
   .direct-call {
     display: flex;
@@ -988,8 +1039,11 @@
       <a href="#book" class="nav-cta">Book Appointment</a>
     </div>
     <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <svg class="icon-open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+      <svg class="icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
       </svg>
     </button>
   </nav>
@@ -1304,11 +1358,12 @@
       <div class="booking-grid">
         <div class="booking-info" data-reveal>
           <h3>Clinic Timings</h3>
+          <p class="open-status" id="openStatus" aria-live="polite"></p>
           <p>Open all 7 days of the week. Walk-ins are welcome, and pre-booked slots help keep your wait time minimal.</p>
           <ul class="hours-list">
-            <li><span>Mon – Sat (Morning)</span><span>10:00 AM – 2:00 PM</span></li>
-            <li><span>Mon – Sat (Evening)</span><span>5:30 PM – 8:30 PM</span></li>
-            <li><span>Sunday</span><span>11:00 AM – 1:00 PM</span></li>
+            <li data-session="0"><span>Mon – Sat (Morning)</span><span>10:00 AM – 2:00 PM</span></li>
+            <li data-session="1"><span>Mon – Sat (Evening)</span><span>5:30 PM – 8:30 PM</span></li>
+            <li data-session="2"><span>Sunday</span><span>11:00 AM – 1:00 PM</span></li>
           </ul>
           <a class="direct-call" href="tel:+918331920026">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E8D5AC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -1473,6 +1528,8 @@
 </div>
 
 <script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // Mobile nav toggle
   const menuBtn = document.getElementById('menuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -1512,8 +1569,14 @@
   // Pre-select service when clicking "Book consultation" on a card
   const serviceSelect = document.getElementById('serviceSelect');
   document.querySelectorAll('.service-link[data-select]').forEach(link => {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', (e) => {
       serviceSelect.value = link.dataset.select;
+      // land on the form itself (on phones the timings card sits above it) and show what was picked
+      e.preventDefault();
+      document.getElementById('bookingForm').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      serviceSelect.classList.remove('flash');
+      void serviceSelect.offsetWidth;
+      serviceSelect.classList.add('flash');
     });
   });
 
@@ -1547,7 +1610,53 @@
     window.open(url, '_blank', 'noopener');
   });
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Live "Open now / Closed" badge, always in clinic time (IST), and the matching row lit up
+  (function openStatus() {
+    const el = document.getElementById('openStatus');
+    // minutes since midnight; Mon–Sat two sessions, Sunday one. Index = row in the hours list.
+    const SESSIONS = [
+      { row: 0, days: [1, 2, 3, 4, 5, 6], from: 600, to: 840 },
+      { row: 1, days: [1, 2, 3, 4, 5, 6], from: 1050, to: 1230 },
+      { row: 2, days: [0], from: 660, to: 780 }
+    ];
+    const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const fmt = m => {
+      const h = Math.floor(m / 60), mm = String(m % 60).padStart(2, '0');
+      return ((h + 11) % 12 + 1) + ':' + mm + (h < 12 ? ' AM' : ' PM');
+    };
+    function update() {
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23'
+      }).formatToParts(new Date()).map(p => [p.type, p.value]));
+      const day = DAYS.indexOf(parts.weekday);
+      const mins = (+parts.hour % 24) * 60 + +parts.minute;
+
+      let text, open = false, row = null;
+      const now = SESSIONS.find(s => s.days.includes(day) && mins >= s.from && mins < s.to);
+      if (now) {
+        open = true; row = now.row;
+        text = 'Open now · until ' + fmt(now.to);
+      } else {
+        // next opening: later today, else the next day that has a session
+        for (let ahead = 0; ahead < 7 && row === null; ahead++) {
+          const d = (day + ahead) % 7;
+          const next = SESSIONS.filter(s => s.days.includes(d) && (ahead > 0 || s.from > mins))
+                               .sort((a, b) => a.from - b.from)[0];
+          if (next) {
+            row = next.row;
+            const when = ahead === 0 ? 'today' : ahead === 1 ? 'tomorrow' : DAYS[d];
+            text = 'Closed now · opens ' + when + ' at ' + fmt(next.from);
+          }
+        }
+      }
+      el.textContent = text;
+      el.classList.toggle('is-open', open);
+      document.querySelectorAll('.hours-list li').forEach(li => li.classList.toggle('now', +li.dataset.session === row));
+    }
+    update();
+    setInterval(update, 60000);
+  })();
 
   // Header shadow once the page scrolls
   const header = document.querySelector('header');
