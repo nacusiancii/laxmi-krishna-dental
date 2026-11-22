@@ -1,6 +1,6 @@
 ---
-// Design lab: try hero variants and palettes side by side. Not linked from the site, and not indexed.
-// Add a variant: drop a component in src/components/heroes/ and list it below.
+// Design lab: try treatment & hero variants and palettes side by side. Not linked from the site, and not indexed.
+// Add a variant: drop a component in src/components/services/ or src/components/heroes/ and list it below.
 import Base from '../layouts/Base.astro';
 import HeroSplit from '../components/heroes/HeroSplit.astro';
 import HeroCentered from '../components/heroes/HeroCentered.astro';
@@ -10,38 +10,47 @@ import ServicesSymptom from '../components/services/ServicesSymptom.astro';
 import ServicesDesk from '../components/services/ServicesDesk.astro';
 
 const servicePrototypes = [
-  { id: 'S1', name: 'Pick by specialist', note: 'Doctors first as tactile tabs, their treatments on the left, Visit 1 + live WhatsApp preview on the right.', Comp: ServicesWorkbench },
-  { id: 'S2', name: 'Start with what you’re feeling', note: 'Symptom-first cards in patient language, an “In pain today?” urgent toggle, and a matched specialist card.', Comp: ServicesSymptom },
-  { id: 'S3', name: 'The consultation desk', note: 'Avatar-tagged index rail, brass-nameplate doctor header, and a live English / తెలుగు WhatsApp message toggle.', Comp: ServicesDesk },
+  { id: 'S1', name: 'Pick by specialist', note: '3-up doctor switcher, swipeable treatment chips, Visit 1 + WhatsApp preview right below.', Comp: ServicesWorkbench },
+  { id: 'S2', name: 'Start with what you’re feeling', note: 'Swipeable symptom deck, “In pain today?” toggle, and matched specialist card in one screen.', Comp: ServicesSymptom },
+  { id: 'S3', name: 'S1 + S2 Hybrid (Doctor filter + Symptom cards)', note: '3-up doctor filter from S1, symptom-first cards from S2, “In pain today?” toggle, and EN / తెలుగు WhatsApp card.', Comp: ServicesDesk },
 ];
 
 const heroes = [
-  { id: 'A', name: 'Split (live)', note: 'Copy left, photo card right, shader behind. What the site uses today. (The shader keeps its own colors when you switch palette.)', Hero: HeroSplit },
+  { id: 'A', name: 'Split (live)', note: 'Copy left, photo card right, shader behind. (The shader keeps its own colors when you switch palette.)', Hero: HeroSplit },
   { id: 'B', name: 'Centered + doctors', note: 'Leads with the people. Strong for trust; less above-the-fold clinic.', Hero: HeroCentered },
   { id: 'C', name: 'Full-bleed photo', note: 'Most dramatic. Puts the clinic itself first.', Hero: HeroPhoto },
 ];
 const themes = [
-  { id: '', name: 'Forest & gold (live)', swatch: ['#143D2B', '#B68D40', '#FAF8F3'] },
+  { id: '', name: 'Forest', swatch: ['#143D2B', '#B68D40', '#FAF8F3'] },
   { id: 'clay', name: 'Clay', swatch: ['#6B3A2A', '#B5803A', '#FBF6F1'] },
   { id: 'lagoon', name: 'Lagoon', swatch: ['#0F4C5C', '#C17C4E', '#F5F9F9'] },
 ];
 ---
 <Base title="Design lab · Laxmi Krishna Dental" noindex>
+  {/* Compact single-row sticky bar on mobile so the lab controls never eat the viewport */}
   <div class="sticky top-0 z-50 border-b border-line bg-cream/95 backdrop-blur">
-    <div class="mx-auto flex max-w-[1120px] flex-wrap items-center gap-3 px-6 py-3">
-      <strong class="mr-auto font-serif text-lg text-forest-deep">Design lab</strong>
-      <nav class="flex items-center gap-2 text-sm font-semibold text-muted" aria-label="Lab sections">
-        <a href="#lab-services" class="rounded-full border border-line bg-surface px-3 py-1 hover:border-forest hover:text-forest-deep">Treatments × Specialists (3)</a>
-        <a href="#lab-heroes" class="rounded-full border border-line bg-surface px-3 py-1 hover:border-forest hover:text-forest-deep">Heroes (3)</a>
+    <div class="mx-auto flex max-w-[1120px] items-center gap-2 overflow-x-auto px-4 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-3 sm:px-6">
+      <strong class="shrink-0 font-serif text-base text-forest-deep sm:mr-auto sm:text-lg">Lab</strong>
+      <nav class="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-muted sm:text-sm" aria-label="Lab sections">
+        <a href="#lab-services" class="rounded-full border border-line bg-surface px-2.5 py-1 hover:border-forest hover:text-forest-deep">Treatments</a>
+        <a href="#lab-heroes" class="rounded-full border border-line bg-surface px-2.5 py-1 hover:border-forest hover:text-forest-deep">Heroes</a>
       </nav>
-      <span class="text-sm text-muted">Palette:</span>
-      {themes.map((t, i) => (
-        <button class:list={['theme-btn inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold', i === 0 ? 'border-forest bg-forest text-white' : 'border-line bg-surface text-muted']}
-          data-theme-id={t.id} aria-pressed={i === 0 ? 'true' : 'false'}>
-          <span class="flex">{t.swatch.map((c) => <span class="-ml-1 first:ml-0 h-4 w-4 rounded-full border border-white" style={`background:${c}`} />)}</span>
-          {t.name}
-        </button>
-      ))}
+      <span class="h-4 w-px shrink-0 bg-line" aria-hidden="true"></span>
+      <div class="flex shrink-0 items-center gap-1.5">
+        {themes.map((t, i) => (
+          <button
+            class:list={[
+              'theme-btn inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold cursor-pointer sm:px-3 sm:py-1.5 sm:text-sm',
+              i === 0 ? 'border-forest bg-forest text-white' : 'border-line bg-surface text-muted',
+            ]}
+            data-theme-id={t.id}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+          >
+            <span class="flex">{t.swatch.map((c) => <span class="-ml-1 first:ml-0 h-3.5 w-3.5 rounded-full border border-white" style={`background:${c}`} />)}</span>
+            {t.name}
+          </button>
+        ))}
+      </div>
     </div>
   </div>
 
@@ -49,10 +58,10 @@ const themes = [
     <div id="lab-services">
       {servicePrototypes.map(({ id, name, note, Comp }) => (
         <section class="border-b-8 border-cream-2">
-          <div class="mx-auto flex max-w-[1120px] flex-wrap items-baseline gap-3 px-6 pt-6">
-            <span class="rounded-md bg-gold px-2 py-0.5 text-sm font-bold text-white">{id}</span>
-            <strong class="text-forest-deep">{name}</strong>
-            <span class="text-sm text-muted">{note}</span>
+          <div class="mx-auto flex max-w-[1120px] flex-wrap items-baseline gap-x-2.5 gap-y-1 px-4 pt-5 sm:px-6 sm:pt-6">
+            <span class="rounded-md bg-gold px-2 py-0.5 text-xs font-bold text-white sm:text-sm">{id}</span>
+            <strong class="text-sm text-forest-deep sm:text-base">{name}</strong>
+            <span class="hidden text-sm text-muted sm:inline">{note}</span>
           </div>
           <Comp />
         </section>
@@ -62,10 +71,10 @@ const themes = [
     <div id="lab-heroes">
       {heroes.map(({ id, name, note, Hero }) => (
         <section class="border-b-8 border-cream-2">
-          <div class="mx-auto flex max-w-[1120px] flex-wrap items-baseline gap-3 px-6 pt-6">
-            <span class="rounded-md bg-forest px-2 py-0.5 text-sm font-bold text-white">{id}</span>
-            <strong class="text-forest-deep">{name}</strong>
-            <span class="text-sm text-muted">{note}</span>
+          <div class="mx-auto flex max-w-[1120px] flex-wrap items-baseline gap-x-2.5 gap-y-1 px-4 pt-5 sm:px-6 sm:pt-6">
+            <span class="rounded-md bg-forest px-2 py-0.5 text-xs font-bold text-white sm:text-sm">{id}</span>
+            <strong class="text-sm text-forest-deep sm:text-base">{name}</strong>
+            <span class="hidden text-sm text-muted sm:inline">{note}</span>
           </div>
           <Hero />
         </section>
@@ -75,7 +84,6 @@ const themes = [
 </Base>
 
 <script>
-  // Palette switch: set data-theme on <html>; every token, and so every section, follows.
   const btns = document.querySelectorAll<HTMLButtonElement>('.theme-btn');
   btns.forEach((btn) => btn.addEventListener('click', () => {
     const id = btn.dataset.themeId;

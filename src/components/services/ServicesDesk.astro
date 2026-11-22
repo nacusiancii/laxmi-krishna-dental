@@ -1,24 +1,49 @@
 ---
-// Prototype S3: The Consultation Desk — compact avatar-tagged index rail + brass-nameplate
-// specialist sheet + live English / Telugu WhatsApp message switcher.
+// Prototype S3 (S1 + S2 Hybrid, Mobile-First): Doctor portrait filter from S1 +
+// symptom-first treatment cards from S2 + Visit 1 & EN/తెలుగు WhatsApp card below.
 import Icon from '../Icon.astro';
 import { clinic, doctors, services, whatsappNumber, img } from '../../data/clinic';
 
 const drSainath = doctors.find((d) => d.id === 'sainath')!;
 const drTulasi = doctors.find((d) => d.id === 'tulasi')!;
 
+const groups = [
+  {
+    id: 'sainath',
+    short: 'Dr. Sainath',
+    sub: 'Surgery & Implants',
+    photos: [drSainath.photo],
+    count: services.filter((s) => s.doctor === 'sainath').length,
+  },
+  {
+    id: 'tulasi',
+    short: 'Dr. Tulasi',
+    sub: 'Braces & Aligners',
+    photos: [drTulasi.photo],
+    count: services.filter((s) => s.doctor === 'tulasi').length,
+  },
+  {
+    id: 'both',
+    short: 'Both',
+    sub: 'Family & Restorative',
+    photos: [drSainath.photo, drTulasi.photo],
+    count: services.filter((s) => s.doctor === 'both').length,
+  },
+];
+
 const payload = services.map((s) => {
   const dr = s.doctor === 'sainath' ? drSainath : s.doctor === 'tulasi' ? drTulasi : null;
   const enMsg = dr
-    ? `Hello ${dr.shortName}, I would like to book a consultation for ${s.name} at Laxmi Krishna Dental.`
-    : `Hello Laxmi Krishna Dental, I would like to book a consultation for ${s.name}.`;
+    ? `Hello ${dr.shortName}, I'm experiencing "${s.symptom.toLowerCase()}" and would like to consult about ${s.name}.`
+    : `Hello Laxmi Krishna Dental, I'm experiencing "${s.symptom.toLowerCase()}" and would like to book a visit for ${s.name}.`;
   const teMsg = dr
     ? `నమస్కారం ${dr.teluguName}, లక్ష్మీ కృష్ణ డెంటల్ క్లినిక్‌లో ${s.teluguLabel} కోసం అపాయింట్‌మెంట్ కావాలి.`
     : `నమస్కారం, లక్ష్మీ కృష్ణ డెంటల్ క్లినిక్‌లో ${s.teluguLabel} కోసం అపాయింట్‌మెంట్ కావాలి.`;
   return {
     ...s,
     doctorName: dr ? dr.name : `${drSainath.shortName} & ${drTulasi.shortName}`,
-    doctorBadge: dr ? `${dr.degree} · ${dr.shortRole}` : 'Both MDS Specialists · Family Dental Care',
+    doctorShort: dr ? dr.shortName : 'the Clinic',
+    doctorRole: dr ? dr.shortRole : 'Both MDS Specialists · Family Care',
     doctorPhotos: dr ? [img(dr.photo)] : [img(drSainath.photo), img(drTulasi.photo)],
     enMsg,
     teMsg,
@@ -27,117 +52,160 @@ const payload = services.map((s) => {
   };
 });
 ---
-<section class="bg-cream py-14" data-proto="desk">
-  <div class="mx-auto max-w-[1120px] px-6">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div class="max-w-xl">
-        <span class="eyebrow">The Consultation Desk</span>
-        <h2 class="mt-2 font-serif text-3xl font-bold text-forest-deep md:text-4xl">
-          Every treatment, paired with its doctor — in English or తెలుగు.
+<section class="bg-cream py-6 sm:py-12" data-proto="desk">
+  <div class="mx-auto max-w-[1120px] px-4 sm:px-6">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <span class="eyebrow">Find Your Care</span>
+        <h2 class="mt-1.5 font-serif text-2xl font-bold text-forest-deep sm:text-3xl md:text-4xl">
+          Pick your specialist, tap what you feel.
         </h2>
       </div>
-      <div class="flex items-center gap-3 text-xs text-muted">
-        <span class="inline-flex items-center gap-1.5">
-          <span class="h-6 w-6 overflow-hidden rounded-full border border-gold-light bg-cream-2">
-            <img src={img(drSainath.photo)} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.2]" />
-          </span>
-          {drSainath.shortName}
-        </span>
-        <span class="inline-flex items-center gap-1.5">
-          <span class="h-6 w-6 overflow-hidden rounded-full border border-gold-light bg-cream-2">
-            <img src={img(drTulasi.photo)} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.2]" />
-          </span>
-          {drTulasi.shortName}
-        </span>
+      <button
+        type="button"
+        data-desk-urgent
+        aria-pressed="false"
+        class="inline-flex items-center gap-2 rounded-full border border-gold bg-gold-soft px-3.5 py-1.5 text-xs font-semibold text-forest-deep transition-all hover:bg-forest hover:border-forest hover:text-white cursor-pointer sm:px-4 sm:py-2 sm:text-sm"
+      >
+        <span class="h-2 w-2 rounded-full bg-gold"></span>
+        In pain today?
+      </button>
+    </div>
+
+    {/* Doctor filter from S1 (3-up compact cards) */}
+    <div class="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3" role="tablist" aria-label="Filter by specialist">
+      {groups.map((g, idx) => (
+        <button
+          type="button"
+          role="tab"
+          aria-selected={idx === 0 ? 'true' : 'false'}
+          data-desk-group={g.id}
+          class:list={[
+            'desk-tab flex min-w-0 flex-col items-center gap-1.5 rounded-2xl border px-2 py-2.5 text-center transition-all cursor-pointer sm:flex-row sm:gap-3 sm:px-3.5 sm:py-3 sm:text-left',
+            idx === 0
+              ? 'border-forest bg-forest text-white shadow-sm'
+              : 'border-line bg-surface text-forest-deep hover:border-gold-light',
+          ]}
+        >
+          <div class="flex shrink-0 -space-x-2">
+            {g.photos.map((p) => (
+              <span class="h-10 w-10 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2 sm:h-11 sm:w-11">
+                <img src={img(p)} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" />
+              </span>
+            ))}
+          </div>
+          <div class="min-w-0 w-full">
+            <strong class="block truncate font-serif text-xs font-semibold sm:text-base">{g.short}</strong>
+            <span class="hidden truncate text-xs opacity-80 sm:block">{g.sub} ({g.count})</span>
+          </div>
+        </button>
+      ))}
+    </div>
+
+    {/* Urgent banner (hidden until "In pain today?" is toggled) */}
+    <div data-desk-banner class="mt-3.5 hidden">
+      <div class="flex items-center justify-between gap-3 rounded-2xl border border-gold-light bg-forest-deep px-4 py-3 text-white">
+        <div class="min-w-0">
+          <strong class="block font-serif text-sm text-gold-light sm:text-base">In pain or swelling today?</strong>
+          <p class="text-xs text-white/85 sm:text-sm">Call directly — we keep same-day room for urgent care.</p>
+        </div>
+        <a class="btn btn-wa btn-sm shrink-0" href={`tel:${clinic.phone}`}>
+          <Icon name="phone" width={15} /> Call
+        </a>
       </div>
     </div>
 
-    <div class="mt-7 overflow-hidden rounded-3xl border border-line bg-surface shadow-sm lg:grid lg:grid-cols-[0.82fr_1.18fr]">
-      {/* Left rail: all 10 treatments with specialist avatar dots */}
-      <div class="border-b border-line bg-cream/60 p-3 lg:border-b-0 lg:border-r lg:p-4">
-        <div class="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
-          {payload.map((s, idx) => (
-            <button
-              type="button"
-              data-desk-row={idx}
-              class:list={[
-                'desk-row flex shrink-0 items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-left transition-all cursor-pointer lg:w-full',
-                idx === 0
-                  ? 'bg-forest text-white shadow-sm'
-                  : 'text-forest-deep hover:bg-surface',
-              ]}
-            >
-              <span class="flex items-center gap-2.5 min-w-0">
-                <Icon name={s.icon} width={17} strokeWidth={1.8} class="shrink-0 opacity-85" />
-                <span class="truncate text-sm font-semibold">{s.name}</span>
+    {/* Symptom cards from S2 (properly aligned with scroll-px-4 on phones, grid on desktop) */}
+    <div
+      class="-mx-4 mt-3.5 flex gap-2.5 overflow-x-auto px-4 pb-1 snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0 sm:scroll-px-0 lg:mt-5 lg:grid lg:grid-cols-4 lg:gap-3 lg:overflow-visible lg:pb-0"
+      data-desk-grid
+    >
+      {payload.map((s, idx) => (
+        <button
+          type="button"
+          data-desk-card={idx}
+          data-desk-doctor={s.doctor}
+          data-urgent={s.urgent ? 'true' : 'false'}
+          class:list={[
+            'desk-card flex w-[220px] shrink-0 snap-start flex-col justify-between rounded-2xl border p-3.5 text-left transition-all cursor-pointer lg:w-auto lg:p-4',
+            s.doctor !== 'sainath' && 'hidden',
+            idx === 0
+              ? 'border-forest bg-forest text-white shadow-md'
+              : 'border-line bg-surface text-forest-deep hover:border-gold-light',
+          ]}
+        >
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class:list={['text-[10px] font-bold uppercase tracking-wider', idx === 0 ? 'text-gold-light' : 'text-gold']}>
+                {s.urgent ? 'Urgent care' : s.tag}
               </span>
-              <span class="flex shrink-0 -space-x-1.5">
+              <div class="flex -space-x-1.5">
                 {s.doctorPhotos.map((src) => (
                   <span class="h-6 w-6 overflow-hidden rounded-full border border-gold-light bg-cream-2">
                     <img src={src} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.2]" />
                   </span>
                 ))}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Right sheet: brass-nameplate header + details + EN/TE WhatsApp toggle */}
-      <div class="flex flex-col justify-between p-6 md:p-8" aria-live="polite">
-        <div>
-          {/* Brass-nameplate-inspired specialist strip */}
-          <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-gold-light/80 bg-gold-soft/70 p-4">
-            <div class="flex shrink-0 -space-x-3" data-desk-photos>
-              <span class="h-14 w-14 overflow-hidden rounded-full border-2 border-gold bg-cream-2">
-                <img src={payload[0].doctorPhotos[0]} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" />
-              </span>
+              </div>
             </div>
-            <div class="min-w-0 flex-1">
-              <strong class="block font-serif text-lg tracking-tight text-forest-deep" data-desk-doc>{payload[0].doctorName}</strong>
-              <span class="block text-xs font-semibold uppercase tracking-wider text-gold" data-desk-badge>{payload[0].doctorBadge}</span>
-            </div>
+            <p class:list={['mt-2 font-serif text-sm font-semibold leading-snug lg:text-[15px]', idx === 0 ? 'text-white' : 'text-forest-deep']}>
+              “{s.symptom}”
+            </p>
           </div>
+          <span class:list={['mt-2.5 block text-[11px] font-semibold', idx === 0 ? 'text-white/75' : 'text-muted']}>
+            {s.name}
+          </span>
+        </button>
+      ))}
+    </div>
 
-          <div class="mt-6">
-            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h3 class="font-serif text-2xl font-bold text-forest-deep md:text-3xl" data-desk-title>{payload[0].name}</h3>
-              <span class="text-sm font-medium text-sage" data-desk-telugu>{payload[0].teluguLabel}</span>
-            </div>
-            <p class="mt-2.5 text-sm leading-relaxed text-muted" data-desk-blurb>{payload[0].blurb}</p>
+    {/* Compact Visit 1 + EN/తెలుగు WhatsApp card right below */}
+    <div class="mt-3.5 overflow-hidden rounded-3xl border border-gold-light bg-surface shadow-sm lg:mt-5" aria-live="polite">
+      <div class="grid min-w-0 md:grid-cols-[0.82fr_1.18fr]">
+        <div class="flex min-w-0 items-center gap-3.5 bg-forest-deep px-4 py-4 text-white sm:p-6">
+          <div class="flex shrink-0 -space-x-2.5" data-desk-photos>
+            {payload[0].doctorPhotos.map((src) => (
+              <span class="h-12 w-12 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2 sm:h-14 sm:w-14">
+                <img src={src} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" />
+              </span>
+            ))}
           </div>
-
-          <dl class="mt-6 grid gap-3 sm:grid-cols-2">
-            <div class="rounded-2xl border border-line bg-cream/60 p-4">
-              <dt class="text-[11px] font-bold uppercase tracking-wider text-gold">At your first visit</dt>
-              <dd class="mt-1 text-sm text-forest-deep" data-desk-visit>{payload[0].firstVisit}</dd>
-            </div>
-            <div class="rounded-2xl border border-line bg-cream/60 p-4">
-              <dt class="text-[11px] font-bold uppercase tracking-wider text-sage">Good to know</dt>
-              <dd class="mt-1 text-sm text-forest-deep" data-desk-know>{payload[0].goodToKnow}</dd>
-            </div>
-          </dl>
+          <div class="min-w-0 flex-1">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-gold-light">You’ll see</span>
+            <h3 class="truncate font-serif text-lg font-bold text-white sm:text-xl" data-desk-doc>{payload[0].doctorName}</h3>
+            <p class="truncate text-xs text-white/80" data-desk-role>{payload[0].doctorRole}</p>
+          </div>
         </div>
 
-        {/* EN / తెలుగు WhatsApp composer */}
-        <div class="mt-6 border-t border-line pt-5">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-muted">WhatsApp message language</span>
-            <div class="inline-flex rounded-full border border-line bg-cream p-0.5 text-xs font-semibold">
-              <button type="button" data-desk-lang="en" class="rounded-full bg-forest px-3 py-1 text-white cursor-pointer">English</button>
-              <button type="button" data-desk-lang="te" class="rounded-full px-3 py-1 text-muted cursor-pointer">తెలుగు</button>
+        <div class="flex min-w-0 flex-col justify-between gap-3.5 p-4 sm:p-6">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <div class="flex flex-wrap items-baseline gap-x-2">
+                <strong class="font-serif text-lg text-forest-deep sm:text-xl" data-desk-title>{payload[0].name}</strong>
+                <span class="text-xs font-medium text-sage" data-desk-telugu>{payload[0].teluguLabel}</span>
+              </div>
+              <div class="inline-flex rounded-full border border-line bg-cream p-0.5 text-[11px] font-semibold">
+                <button type="button" data-desk-lang="en" class="rounded-full bg-forest px-2.5 py-1 text-white cursor-pointer">EN</button>
+                <button type="button" data-desk-lang="te" class="rounded-full px-2.5 py-1 text-muted cursor-pointer">తెలుగు</button>
+              </div>
             </div>
+            <p class="mt-2 text-xs leading-relaxed text-muted sm:text-sm" data-desk-visit>
+              <strong class="text-forest-deep">Visit 1:</strong> {payload[0].firstVisit}
+            </p>
+            <p class="mt-1 text-xs leading-relaxed text-muted sm:text-sm" data-desk-know>{payload[0].goodToKnow}</p>
           </div>
-          <p class="mt-2.5 rounded-xl border border-line/80 bg-cream/50 px-3.5 py-2.5 text-sm text-forest-deep" data-desk-msg>
-            {payload[0].enMsg}
-          </p>
-          <div class="mt-4 flex flex-wrap items-center gap-3">
-            <a class="btn btn-wa btn-sm" data-desk-wa href={payload[0].enHref} target="_blank" rel="noopener">
-              <Icon name="whatsapp" width={16} /> Send on WhatsApp
-            </a>
-            <a class="btn btn-outline btn-sm" href={`tel:${clinic.phone}`}>
-              <Icon name="phone" width={16} /> Call {clinic.phoneShort}
-            </a>
+
+          <div class="min-w-0">
+            <p class="rounded-xl border border-line/80 bg-cream/60 px-3 py-2 text-xs italic leading-snug text-forest-deep" data-desk-msg>
+              “{payload[0].enMsg}”
+            </p>
+            <div class="mt-2.5 grid min-w-0 grid-cols-[1fr_auto] gap-2 sm:flex sm:flex-wrap">
+              <a class="btn btn-wa btn-sm min-w-0 justify-center px-3" data-desk-wa href={payload[0].enHref} target="_blank" rel="noopener">
+                <Icon name="whatsapp" width={16} /> <span class="truncate" data-desk-cta>WhatsApp {payload[0].doctorShort}</span>
+              </a>
+              <a class="btn btn-outline btn-sm shrink-0 justify-center px-3.5" href={`tel:${clinic.phone}`}>
+                <Icon name="phone" width={16} /> <span class="hidden sm:inline">Call {clinic.phoneShort}</span><span class="sm:hidden">Call</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -150,46 +218,120 @@ const payload = services.map((s) => {
 <script>
   document.querySelectorAll<HTMLElement>('[data-proto="desk"]').forEach((root) => {
     const data = JSON.parse(root.querySelector('[data-desk-json]')!.textContent!);
-    const rows = root.querySelectorAll<HTMLButtonElement>('[data-desk-row]');
+    const tabs = root.querySelectorAll<HTMLButtonElement>('[data-desk-group]');
+    const cards = root.querySelectorAll<HTMLButtonElement>('[data-desk-card]');
+    const gridEl = root.querySelector<HTMLElement>('[data-desk-grid]')!;
+    const urgentBtn = root.querySelector<HTMLButtonElement>('[data-desk-urgent]')!;
+    const banner = root.querySelector<HTMLElement>('[data-desk-banner]')!;
     const langBtns = root.querySelectorAll<HTMLButtonElement>('[data-desk-lang]');
     const photosEl = root.querySelector('[data-desk-photos]')!;
     const docEl = root.querySelector('[data-desk-doc]')!;
-    const badgeEl = root.querySelector('[data-desk-badge]')!;
+    const roleEl = root.querySelector('[data-desk-role]')!;
     const titleEl = root.querySelector('[data-desk-title]')!;
     const teluguEl = root.querySelector('[data-desk-telugu]')!;
-    const blurbEl = root.querySelector('[data-desk-blurb]')!;
     const visitEl = root.querySelector('[data-desk-visit]')!;
     const knowEl = root.querySelector('[data-desk-know]')!;
     const msgEl = root.querySelector('[data-desk-msg]')!;
     const waEl = root.querySelector<HTMLAnchorElement>('[data-desk-wa]')!;
+    const ctaEl = root.querySelector('[data-desk-cta]')!;
 
     let current = 0;
+    let activeGroup = 'sainath';
+    let urgentOnly = false;
     let lang: 'en' | 'te' = 'en';
 
-    function render() {
+    function paintDetail() {
       const s = data[current];
-      rows.forEach((r) => {
-        const on = Number(r.dataset.deskRow) === current;
-        r.classList.toggle('bg-forest', on);
-        r.classList.toggle('text-white', on);
-        r.classList.toggle('shadow-sm', on);
-        r.classList.toggle('text-forest-deep', !on);
+      cards.forEach((c) => {
+        const on = Number(c.dataset.deskCard) === current;
+        c.classList.toggle('border-forest', on);
+        c.classList.toggle('bg-forest', on);
+        c.classList.toggle('text-white', on);
+        c.classList.toggle('shadow-md', on);
+        c.classList.toggle('border-line', !on);
+        c.classList.toggle('bg-surface', !on);
+        c.classList.toggle('text-forest-deep', !on);
+        const tag = c.querySelector('span');
+        const quote = c.querySelector('p');
+        const foot = c.querySelector('span:last-child');
+        if (tag) { tag.classList.toggle('text-gold-light', on); tag.classList.toggle('text-gold', !on); }
+        if (quote) { quote.classList.toggle('text-white', on); quote.classList.toggle('text-forest-deep', !on); }
+        if (foot) { foot.classList.toggle('text-white/75', on); foot.classList.toggle('text-muted', !on); }
       });
       photosEl.innerHTML = s.doctorPhotos
-        .map((src: string) => `<span class="h-14 w-14 overflow-hidden rounded-full border-2 border-gold bg-cream-2"><img src="${src}" alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" /></span>`)
+        .map((src: string) => `<span class="h-12 w-12 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2 sm:h-14 sm:w-14"><img src="${src}" alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" /></span>`)
         .join('');
       docEl.textContent = s.doctorName;
-      badgeEl.textContent = s.doctorBadge;
+      roleEl.textContent = s.doctorRole;
       titleEl.textContent = s.name;
       teluguEl.textContent = s.teluguLabel;
-      blurbEl.textContent = s.blurb;
-      visitEl.textContent = s.firstVisit;
+      visitEl.innerHTML = `<strong class="text-forest-deep">Visit 1:</strong> ${s.firstVisit}`;
       knowEl.textContent = s.goodToKnow;
-      msgEl.textContent = lang === 'en' ? s.enMsg : s.teMsg;
+      msgEl.textContent = `“${lang === 'en' ? s.enMsg : s.teMsg}”`;
       waEl.href = lang === 'en' ? s.enHref : s.teHref;
+      ctaEl.textContent = `WhatsApp ${s.doctorShort}`;
     }
 
-    rows.forEach((r) => r.addEventListener('click', () => { current = Number(r.dataset.deskRow); render(); }));
+    function applyFilter() {
+      let firstVisible = -1;
+      cards.forEach((c) => {
+        const show = urgentOnly ? c.dataset.urgent === 'true' : c.dataset.deskDoctor === activeGroup;
+        c.classList.toggle('hidden', !show);
+        if (show && firstVisible === -1) firstVisible = Number(c.dataset.deskCard);
+      });
+      gridEl.scrollLeft = 0;
+      if (firstVisible >= 0) { current = firstVisible; paintDetail(); }
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        urgentOnly = false;
+        urgentBtn.setAttribute('aria-pressed', 'false');
+        urgentBtn.classList.remove('bg-forest', 'border-forest', 'text-white');
+        urgentBtn.classList.add('bg-gold-soft', 'border-gold', 'text-forest-deep');
+        banner.classList.add('hidden');
+        activeGroup = tab.dataset.deskGroup!;
+        tabs.forEach((t) => {
+          const on = t === tab;
+          t.setAttribute('aria-selected', String(on));
+          t.classList.toggle('border-forest', on);
+          t.classList.toggle('bg-forest', on);
+          t.classList.toggle('text-white', on);
+          t.classList.toggle('shadow-sm', on);
+          t.classList.toggle('border-line', !on);
+          t.classList.toggle('bg-surface', !on);
+          t.classList.toggle('text-forest-deep', !on);
+        });
+        applyFilter();
+      });
+    });
+
+    urgentBtn.addEventListener('click', () => {
+      urgentOnly = !urgentOnly;
+      urgentBtn.setAttribute('aria-pressed', String(urgentOnly));
+      urgentBtn.classList.toggle('bg-forest', urgentOnly);
+      urgentBtn.classList.toggle('border-forest', urgentOnly);
+      urgentBtn.classList.toggle('text-white', urgentOnly);
+      urgentBtn.classList.toggle('bg-gold-soft', !urgentOnly);
+      urgentBtn.classList.toggle('border-gold', !urgentOnly);
+      urgentBtn.classList.toggle('text-forest-deep', !urgentOnly);
+      banner.classList.toggle('hidden', !urgentOnly);
+      tabs.forEach((t) => {
+        const on = !urgentOnly && t.dataset.deskGroup === activeGroup;
+        t.setAttribute('aria-selected', String(on));
+        t.classList.toggle('border-forest', on);
+        t.classList.toggle('bg-forest', on);
+        t.classList.toggle('text-white', on);
+        t.classList.toggle('shadow-sm', on);
+        t.classList.toggle('border-line', !on);
+        t.classList.toggle('bg-surface', !on);
+        t.classList.toggle('text-forest-deep', !on);
+      });
+      applyFilter();
+    });
+
+    cards.forEach((c) => c.addEventListener('click', () => { current = Number(c.dataset.deskCard); paintDetail(); }));
+
     langBtns.forEach((b) => {
       b.addEventListener('click', () => {
         lang = b.dataset.deskLang as 'en' | 'te';
@@ -199,7 +341,7 @@ const payload = services.map((s) => {
           x.classList.toggle('text-white', on);
           x.classList.toggle('text-muted', !on);
         });
-        render();
+        paintDetail();
       });
     });
   });
