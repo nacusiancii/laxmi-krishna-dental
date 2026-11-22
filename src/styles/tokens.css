@@ -1,0 +1,31 @@
+/* Design tokens: the one place to change the look.
+   Every color here becomes a Tailwind utility (bg-forest, text-gold, border-line…)
+   and a CSS variable (var(--color-forest)) used by the hand-written styles. */
+@theme static {
+  --color-cream: #FAF8F3;
+  --color-cream-2: #F1ECE1;
+  --color-surface: #FFFFFF;
+  --color-forest: #143D2B;
+  --color-forest-deep: #0E2B1E;
+  --color-sage: #2F6047;
+  --color-sage-soft: #E5EFE8;
+  --color-gold: #B68D40;
+  --color-gold-light: #E8D5AC;
+  --color-gold-soft: #FBF5E8;
+  --color-ink: #1B241E;
+  --color-muted: #536258;
+  --color-line: #DFDDD3;
+  --color-whatsapp: #1E8E4A;
+  --color-whatsapp-hover: #17753C;
+
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  --radius: 18px;
+  --shadow-sm: 0 4px 16px rgba(14, 43, 30, 0.06);
+  --shadow-md: 0 14px 36px rgba(14, 43, 30, 0.09);
+}

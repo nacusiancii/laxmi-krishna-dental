@@ -5,3 +5,8 @@ Presense/
 Lakshmi Krishna Dental.html
 .DS_Store
 Thumbs.db
+
+# Astro build
+node_modules/
+dist/
+.astro/

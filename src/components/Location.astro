@@ -1,0 +1,70 @@
+---
+import Icon from './Icon.astro';
+import { clinic } from '../data/clinic';
+const directions = `https://www.google.com/maps/dir/?api=1&destination=${clinic.geo.lat},${clinic.geo.lng}`;
+---
+<section class="section" id="location">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Find Us in Kurnool</span>
+      <h2>Visit, call, or message anytime.</h2>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-list">
+        <div class="contact-item" data-reveal>
+          <Icon name="pin" strokeWidth={1.8} />
+          <div>
+            <h4>Clinic Address</h4>
+            <p id="clinicAddress">{clinic.addressLines[0]}<br>{clinic.addressLines[1]}</p>
+            <button type="button" class="copy-btn" id="copyAddress" hidden>
+              <Icon name="copy" width={14} /> <span>Copy address</span>
+            </button>
+          </div>
+        </div>
+        <div class="contact-item" data-reveal>
+          <Icon name="phone" strokeWidth={1.8} />
+          <div><h4>Phone &amp; WhatsApp</h4><p><a href={`tel:${clinic.phone}`}>{clinic.phoneDisplay}</a></p></div>
+        </div>
+        <div class="contact-item" data-reveal>
+          <Icon name="instagram" strokeWidth={1.8} />
+          <div><h4>Instagram</h4><p><a href={clinic.instagram} target="_blank" rel="noopener">{clinic.instagramHandle}</a></p></div>
+        </div>
+        <div class="contact-item" data-reveal>
+          <Icon name="mail" strokeWidth={1.8} />
+          <div><h4>Email</h4><p><a href={`mailto:${clinic.email}`}>{clinic.email}</a></p></div>
+        </div>
+      </div>
+
+      <div class="map-box" data-reveal>
+        <iframe title={`${clinic.name} on Google Maps`} loading="lazy" referrerpolicy="no-referrer-when-downgrade" src={clinic.mapsEmbed}></iframe>
+        <div class="map-footer">
+          <span>{clinic.landmark}</span>
+          <div class="btn-row" style="gap: 8px;">
+            <a class="btn btn-outline btn-sm" href={clinic.mapsUrl} target="_blank" rel="noopener">Open in Maps</a>
+            <a class="btn btn-primary btn-sm" href={directions} target="_blank" rel="noopener">Get directions</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Copy the address, handy for sharing with family or an auto driver. Only shown where the clipboard works.
+  const btn = document.getElementById('copyAddress') as HTMLButtonElement;
+  if (navigator.clipboard && window.isSecureContext) {
+    btn.hidden = false;
+    const label = btn.querySelector('span')!;
+    btn.addEventListener('click', async () => {
+      const text = document.getElementById('clinicAddress')!.innerText.replace(/\s*\n\s*/g, ' ');
+      try {
+        await navigator.clipboard.writeText(text);
+        label.textContent = 'Copied ✓';
+      } catch {
+        label.textContent = 'Copy failed';
+      }
+      setTimeout(() => (label.textContent = 'Copy address'), 2000);
+    });
+  }
+</script>

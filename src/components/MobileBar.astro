@@ -1,0 +1,8 @@
+---
+import Icon from './Icon.astro';
+import { clinic, whatsappLink } from '../data/clinic';
+---
+<div class="mobile-bar" aria-label="Quick contact actions">
+  <a class="btn btn-primary" href={`tel:${clinic.phone}`}><Icon name="phone" /> Call Now</a>
+  <a class="btn btn-wa" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+</div>

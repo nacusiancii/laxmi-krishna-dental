@@ -1,0 +1,62 @@
+---
+// Design lab: try hero variants and palettes side by side. Not linked from the site, and not indexed.
+// Add a variant: drop a component in src/components/heroes/ and list it below.
+import Base from '../layouts/Base.astro';
+import HeroSplit from '../components/heroes/HeroSplit.astro';
+import HeroCentered from '../components/heroes/HeroCentered.astro';
+import HeroPhoto from '../components/heroes/HeroPhoto.astro';
+
+const heroes = [
+  { id: 'A', name: 'Split (live)', note: 'Copy left, photo card right, shader behind. What the site uses today.', Hero: HeroSplit },
+  { id: 'B', name: 'Centered + doctors', note: 'Leads with the people. Strong for trust; less above-the-fold clinic.', Hero: HeroCentered },
+  { id: 'C', name: 'Full-bleed photo', note: 'Most dramatic. Puts the clinic itself first.', Hero: HeroPhoto },
+];
+const themes = [
+  { id: '', name: 'Forest & gold (live)', swatch: ['#143D2B', '#B68D40', '#FAF8F3'] },
+  { id: 'clay', name: 'Clay', swatch: ['#6B3A2A', '#B5803A', '#FBF6F1'] },
+  { id: 'lagoon', name: 'Lagoon', swatch: ['#0F4C5C', '#C17C4E', '#F5F9F9'] },
+];
+---
+<Base title="Design lab · Laxmi Krishna Dental" noindex>
+  <div class="sticky top-0 z-50 border-b border-line bg-cream/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[1120px] flex-wrap items-center gap-3 px-6 py-3">
+      <strong class="mr-auto font-serif text-lg text-forest-deep">Design lab</strong>
+      <span class="text-sm text-muted">Palette:</span>
+      {themes.map((t, i) => (
+        <button class:list={['theme-btn inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold', i === 0 ? 'border-forest bg-forest text-white' : 'border-line bg-surface text-muted']}
+          data-theme-id={t.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+          <span class="flex">{t.swatch.map((c) => <span class="-ml-1 first:ml-0 h-4 w-4 rounded-full border border-white" style={`background:${c}`} />)}</span>
+          {t.name}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <main id="lab">
+    {heroes.map(({ id, name, note, Hero }) => (
+      <section class="border-b-8 border-cream-2">
+        <div class="mx-auto flex max-w-[1120px] items-baseline gap-3 px-6 pt-6">
+          <span class="rounded-md bg-forest px-2 py-0.5 text-sm font-bold text-white">{id}</span>
+          <strong class="text-forest-deep">{name}</strong>
+          <span class="text-sm text-muted">{note}</span>
+        </div>
+        <Hero />
+      </section>
+    ))}
+  </main>
+</Base>
+
+<script>
+  // Palette switch: set data-theme on <html>; every token, and so every section, follows.
+  const btns = document.querySelectorAll<HTMLButtonElement>('.theme-btn');
+  btns.forEach((btn) => btn.addEventListener('click', () => {
+    const id = btn.dataset.themeId;
+    if (id) document.documentElement.dataset.theme = id; else delete document.documentElement.dataset.theme;
+    btns.forEach((b) => {
+      const on = b === btn;
+      b.setAttribute('aria-pressed', String(on));
+      b.classList.toggle('bg-forest', on); b.classList.toggle('border-forest', on); b.classList.toggle('text-white', on);
+      b.classList.toggle('bg-surface', !on); b.classList.toggle('border-line', !on); b.classList.toggle('text-muted', !on);
+    });
+  }));
+</script>
