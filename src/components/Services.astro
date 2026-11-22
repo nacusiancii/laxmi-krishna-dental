@@ -20,7 +20,7 @@ import { services, serviceFilters } from '../data/clinic';
 
     <div class="services-grid">
       {services.map((s) => (
-        <article class="service-card" data-cat={s.cat} data-reveal>
+        <article class="service-card" data-cat={s.cat}>
           <div class="service-top">
             <div class="service-icon"><Icon name={s.icon} strokeWidth={1.8} /></div>
             <span class="service-cat">{s.tag}</span>
@@ -31,6 +31,7 @@ import { services, serviceFilters } from '../data/clinic';
         </article>
       ))}
     </div>
+    <div class="svc-detail"></div>
   </div>
 </section>
 
@@ -52,6 +53,29 @@ import { services, serviceFilters } from '../data/clinic';
           card.classList.add('pop');
         }
       });
+      chipRow.scrollLeft = 0; // on phones, bring the first remaining chip back into view
+      show(visibleCards()[0]);
     });
   });
+
+  // Tap a treatment, its details and booking link show in one panel below
+  const chipRow = serviceCards[0].parentElement!;
+  const detail = document.querySelector<HTMLElement>('#services .svc-detail')!;
+  const visibleCards = () => [...serviceCards].filter((c) => !c.classList.contains('hidden'));
+  const show = (card: HTMLElement) => {
+    serviceCards.forEach((c) => { c.classList.toggle('active', c === card); c.setAttribute('aria-pressed', String(c === card)); });
+    const link = card.querySelector<HTMLAnchorElement>('.service-link')!;
+    detail.innerHTML = `${card.querySelector('.service-icon')!.outerHTML}
+      <div><h3>${card.querySelector('h3')!.innerHTML}</h3><p>${card.querySelector('p')!.innerHTML}</p></div>
+      <a class="service-link" href="#book" data-select="${link.dataset.select}">Book consultation →</a>`;
+    detail.classList.remove('swap'); void detail.offsetWidth; detail.classList.add('swap');
+  };
+  serviceCards.forEach((card) => {
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.addEventListener('click', () => show(card));
+    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(card); } });
+  });
+  show(serviceCards[0]);
+  detail.setAttribute('aria-live', 'polite'); // after the first fill, so page load isn't announced
 </script>

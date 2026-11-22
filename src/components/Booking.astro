@@ -93,17 +93,17 @@ import { clinic, sessions, services } from '../data/clinic';
     };
   }
 
-  // Pre-select the treatment when "Book consultation" is tapped on a card
-  document.querySelectorAll<HTMLAnchorElement>('.service-link[data-select]').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      serviceSelect.value = link.dataset.select!;
-      // land on the form itself (on phones the timings card sits above it) and show what was picked
-      e.preventDefault();
-      form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-      serviceSelect.classList.remove('flash');
-      void serviceSelect.offsetWidth;
-      serviceSelect.classList.add('flash');
-    });
+  // Pre-select the treatment when "Book consultation" is tapped (delegated: the services panel adds its link later)
+  document.addEventListener('click', (e) => {
+    const link = (e.target as Element).closest<HTMLAnchorElement>('.service-link[data-select]');
+    if (!link) return;
+    serviceSelect.value = link.dataset.select!;
+    // land on the form itself (on phones the timings card sits above it) and show what was picked
+    e.preventDefault();
+    form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    serviceSelect.classList.remove('flash');
+    void serviceSelect.offsetWidth;
+    serviceSelect.classList.add('flash');
   });
 
   // Earliest date is today in Kurnool (not UTC, which is still "yesterday" until 5:30 AM IST)
