@@ -3,7 +3,7 @@ import Icon from './Icon.astro';
 import { clinic, whatsappLink } from '../data/clinic';
 ---
 <div class="mobile-bar" id="mobileBar" data-open="book" aria-label="Quick actions">
-  <a class="mb-item mb-book" data-key="book" href="#book"><Icon name="tooth" /><span class="mb-label">Book Appointment</span></a>
+  <a class="mb-item mb-book" data-key="book" href="#bookingForm"><Icon name="tooth" /><span class="mb-label">Book Appointment</span></a>
   <a class="mb-item mb-call" data-key="call" href={`tel:${clinic.phone}`}><Icon name="phone" /><span class="mb-label">Call Now</span></a>
   <a class="mb-item mb-wa" data-key="wa" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /><span class="mb-label">WhatsApp</span></a>
 </div>
