@@ -5,6 +5,15 @@ import Base from '../layouts/Base.astro';
 import HeroSplit from '../components/heroes/HeroSplit.astro';
 import HeroCentered from '../components/heroes/HeroCentered.astro';
 import HeroPhoto from '../components/heroes/HeroPhoto.astro';
+import ServicesWorkbench from '../components/services/ServicesWorkbench.astro';
+import ServicesSymptom from '../components/services/ServicesSymptom.astro';
+import ServicesDesk from '../components/services/ServicesDesk.astro';
+
+const servicePrototypes = [
+  { id: 'S1', name: 'Pick by specialist', note: 'Doctors first as tactile tabs, their treatments on the left, Visit 1 + live WhatsApp preview on the right.', Comp: ServicesWorkbench },
+  { id: 'S2', name: 'Start with what you’re feeling', note: 'Symptom-first cards in patient language, an “In pain today?” urgent toggle, and a matched specialist card.', Comp: ServicesSymptom },
+  { id: 'S3', name: 'The consultation desk', note: 'Avatar-tagged index rail, brass-nameplate doctor header, and a live English / తెలుగు WhatsApp message toggle.', Comp: ServicesDesk },
+];
 
 const heroes = [
   { id: 'A', name: 'Split (live)', note: 'Copy left, photo card right, shader behind. What the site uses today. (The shader keeps its own colors when you switch palette.)', Hero: HeroSplit },
@@ -21,6 +30,10 @@ const themes = [
   <div class="sticky top-0 z-50 border-b border-line bg-cream/95 backdrop-blur">
     <div class="mx-auto flex max-w-[1120px] flex-wrap items-center gap-3 px-6 py-3">
       <strong class="mr-auto font-serif text-lg text-forest-deep">Design lab</strong>
+      <nav class="flex items-center gap-2 text-sm font-semibold text-muted" aria-label="Lab sections">
+        <a href="#lab-services" class="rounded-full border border-line bg-surface px-3 py-1 hover:border-forest hover:text-forest-deep">Treatments × Specialists (3)</a>
+        <a href="#lab-heroes" class="rounded-full border border-line bg-surface px-3 py-1 hover:border-forest hover:text-forest-deep">Heroes (3)</a>
+      </nav>
       <span class="text-sm text-muted">Palette:</span>
       {themes.map((t, i) => (
         <button class:list={['theme-btn inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold', i === 0 ? 'border-forest bg-forest text-white' : 'border-line bg-surface text-muted']}
@@ -33,16 +46,31 @@ const themes = [
   </div>
 
   <main id="lab">
-    {heroes.map(({ id, name, note, Hero }) => (
-      <section class="border-b-8 border-cream-2">
-        <div class="mx-auto flex max-w-[1120px] items-baseline gap-3 px-6 pt-6">
-          <span class="rounded-md bg-forest px-2 py-0.5 text-sm font-bold text-white">{id}</span>
-          <strong class="text-forest-deep">{name}</strong>
-          <span class="text-sm text-muted">{note}</span>
-        </div>
-        <Hero />
-      </section>
-    ))}
+    <div id="lab-services">
+      {servicePrototypes.map(({ id, name, note, Comp }) => (
+        <section class="border-b-8 border-cream-2">
+          <div class="mx-auto flex max-w-[1120px] flex-wrap items-baseline gap-3 px-6 pt-6">
+            <span class="rounded-md bg-gold px-2 py-0.5 text-sm font-bold text-white">{id}</span>
+            <strong class="text-forest-deep">{name}</strong>
+            <span class="text-sm text-muted">{note}</span>
+          </div>
+          <Comp />
+        </section>
+      ))}
+    </div>
+
+    <div id="lab-heroes">
+      {heroes.map(({ id, name, note, Hero }) => (
+        <section class="border-b-8 border-cream-2">
+          <div class="mx-auto flex max-w-[1120px] flex-wrap items-baseline gap-3 px-6 pt-6">
+            <span class="rounded-md bg-forest px-2 py-0.5 text-sm font-bold text-white">{id}</span>
+            <strong class="text-forest-deep">{name}</strong>
+            <span class="text-sm text-muted">{note}</span>
+          </div>
+          <Hero />
+        </section>
+      ))}
+    </div>
   </main>
 </Base>
 

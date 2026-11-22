@@ -300,13 +300,20 @@ nav.wrap {
   flex-wrap: wrap;
   gap: 8px;
 }
-.care-tags span {
+.care-tags span,
+.care-tags a {
   font-size: 0.78rem;
   font-weight: 600;
   padding: 5px 11px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
   color: #F4F7F5;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.care-tags a:hover {
+  background: var(--color-gold-light);
+  color: var(--color-forest-deep);
+  transform: translateY(-1px);
 }
 
 /* SECTION SPACING */
@@ -993,8 +1000,13 @@ header.scrolled { box-shadow: 0 6px 24px rgba(14, 43, 30, 0.08); background: rgb
 .btn-sm { padding: 9px 16px; font-size: 0.84rem; }
 .field-hint { font-size: 0.8rem; color: var(--color-sage); min-height: 1em; }
 .field-hint:empty { display: none; }
-.copy-btn {
+.address-actions {
   margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.copy-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1009,7 +1021,9 @@ header.scrolled { box-shadow: 0 6px 24px rgba(14, 43, 30, 0.08); background: rgb
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
-.copy-btn:hover { background: var(--color-forest); color: #fff; }
+.copy-btn:hover { background: var(--color-forest); color: #fff; text-decoration: none; }
+.share-wa-btn { color: var(--color-whatsapp-hover); background: #E4F5EA; }
+.share-wa-btn:hover { background: var(--color-whatsapp); color: #fff; }
 .copy-btn[hidden] { display: none; }
 .contact-item .copy-btn svg { width: 14px; height: 14px; margin: 0; color: currentColor; }
 /* Tailwind's reset makes form controls inherit the body's 1.6 line-height; the design used the browser's normal */
