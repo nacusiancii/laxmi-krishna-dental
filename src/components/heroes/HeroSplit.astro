@@ -2,7 +2,7 @@
 // The live hero: copy on the left, clinic photo card on the right, soft shader behind.
 import Icon from '../Icon.astro';
 import HeroShader from '../HeroShader.astro';
-import { clinic, whatsappLink, img } from '../../data/clinic';
+import { clinic, img } from '../../data/clinic';
 ---
 <section class="hero">
   <HeroShader />
@@ -14,8 +14,8 @@ import { clinic, whatsappLink, img } from '../../data/clinic';
         Led by an MDS husband-and-wife specialist team — an <strong>Oral &amp; Maxillofacial Surgeon</strong> and an <strong>Orthodontist</strong> — Laxmi Krishna Multispeciality Dental Clinic brings calm, honest treatment under one roof.
       </p>
       <div class="btn-row">
-        <a class="btn btn-wa" href={whatsappLink()} target="_blank" rel="noopener">
-          <Icon name="whatsapp" /> Book on WhatsApp
+        <a class="btn btn-primary" href="#book">
+          <Icon name="tooth" /> Book Appointment
         </a>
         <a class="btn btn-outline" href={`tel:${clinic.phone}`}>
           <Icon name="phone" /> Call {clinic.phoneShort}

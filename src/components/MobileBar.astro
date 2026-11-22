@@ -2,7 +2,20 @@
 import Icon from './Icon.astro';
 import { clinic, whatsappLink } from '../data/clinic';
 ---
-<div class="mobile-bar" aria-label="Quick contact actions">
-  <a class="btn btn-primary" href={`tel:${clinic.phone}`}><Icon name="phone" /> Call Now</a>
-  <a class="btn btn-wa" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> WhatsApp</a>
+<div class="mobile-bar" id="mobileBar" data-open="book" aria-label="Quick actions">
+  <a class="mb-item mb-book" data-key="book" href="#book"><Icon name="tooth" /><span class="mb-label">Book Appointment</span></a>
+  <a class="mb-item mb-call" data-key="call" href={`tel:${clinic.phone}`}><Icon name="phone" /><span class="mb-label">Call Now</span></a>
+  <a class="mb-item mb-wa" data-key="wa" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /><span class="mb-label">WhatsApp</span></a>
 </div>
+
+<script>
+  const bar = document.getElementById('mobileBar')!;
+  const heroBtns = document.querySelector('.hero .btn-row');
+  // One tap does both: the link acts right away, and the tapped item takes the label.
+  bar.querySelectorAll<HTMLElement>('.mb-item').forEach((a) =>
+    a.addEventListener('click', () => { bar.dataset.open = a.dataset.key; }));
+  // Show the bar only once the hero's own Book / Call buttons have scrolled off the top.
+  if (heroBtns) new IntersectionObserver(([e]) =>
+    bar.classList.toggle('shown', !e.isIntersecting && e.boundingClientRect.top < 0)).observe(heroBtns);
+  else bar.classList.add('shown');
+</script>

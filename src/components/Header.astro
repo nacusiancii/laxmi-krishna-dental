@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { img } from '../data/clinic';
+import { clinic, img, whatsappLink } from '../data/clinic';
 ---
 <header>
   <nav class="wrap" aria-label="Primary navigation">
@@ -16,6 +16,8 @@ import { img } from '../data/clinic';
       <a href="#doctors">Doctors</a>
       <a href="#clinic">Clinic</a>
       <a href="#location">Location &amp; Hours</a>
+      <a href={`tel:${clinic.phone}`} class="nav-icon" aria-label={`Call ${clinic.phoneShort}`} title={`Call ${clinic.phoneShort}`}><Icon name="phone" /></a>
+      <a href={whatsappLink()} class="nav-icon nav-wa" target="_blank" rel="noopener" aria-label="WhatsApp the clinic" title="WhatsApp"><Icon name="whatsapp" /></a>
       <a href="#book" class="nav-cta">Book Appointment</a>
     </div>
     <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">

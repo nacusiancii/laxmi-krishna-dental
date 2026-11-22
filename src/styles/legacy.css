@@ -107,6 +107,13 @@ nav.wrap {
   padding: 10px 18px;
   margin-left: 6px;
 }
+.nav-links .nav-icon {
+  display: inline-flex; padding: 9px; border: 1px solid var(--color-line); color: var(--color-forest-deep);
+}
+.nav-links .nav-icon svg { width: 18px; height: 18px; }
+.nav-links .nav-icon.nav-wa { color: var(--color-whatsapp); }
+/* the icons don't fit beside the links on narrow laptops; the bottom bar takes over below 920px */
+@media (max-width: 1040px) { .nav-links .nav-icon { display: none; } }
 .nav-links .nav-cta:hover {
   background: var(--color-sage);
   color: #fff;
@@ -821,7 +828,8 @@ footer {
   color: rgba(255, 255, 255, 0.64);
 }
 
-/* MOBILE STICKY ACTION BAR */
+/* MOBILE STICKY ACTION BAR: slides up once the hero's buttons are gone. The last-tapped action
+   wears its label; the others shrink to icons. */
 .mobile-bar {
   display: none;
   position: fixed;
@@ -831,15 +839,30 @@ footer {
   z-index: 70;
   background: var(--color-surface);
   border-top: 1px solid var(--color-line);
-  padding: 10px 14px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
   gap: 10px;
   box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.35s var(--ease-out);
 }
-.mobile-bar a {
-  flex: 1;
-  padding: 12px 14px;
-  font-size: 0.9rem;
+.js .mobile-bar:not(.shown) { transform: translateY(110%); }
+.mb-item {
+  flex: 0 0 48px; height: 48px; padding: 0 14px; min-width: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px; border: 1.5px solid var(--color-line); color: var(--color-forest-deep);
+  font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden;
+  transition: flex 0.35s var(--ease-out), background 0.25s, color 0.25s, border-color 0.25s;
 }
+.mb-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+.mb-label { max-width: 0; opacity: 0; overflow: hidden; transition: max-width 0.35s var(--ease-out), opacity 0.2s, margin 0.35s; }
+.mb-wa { background: var(--color-whatsapp); border-color: transparent; color: #fff; }
+.mobile-bar[data-open="book"] .mb-book,
+.mobile-bar[data-open="call"] .mb-call,
+.mobile-bar[data-open="wa"] .mb-wa { flex: 1 1 auto; }
+.mobile-bar[data-open="book"] .mb-book .mb-label,
+.mobile-bar[data-open="call"] .mb-call .mb-label,
+.mobile-bar[data-open="wa"] .mb-wa .mb-label { max-width: 12em; opacity: 1; margin-left: 9px; }
+.mobile-bar[data-open="book"] .mb-book,
+.mobile-bar[data-open="call"] .mb-call { background: var(--color-forest); border-color: transparent; color: #fff; }
 
 /* ===== MOTION & SHADER ===== */
 
@@ -959,7 +982,7 @@ header.scrolled { box-shadow: 0 6px 24px rgba(14, 43, 30, 0.08); background: rgb
   70%  { box-shadow: 0 0 0 12px rgba(30, 142, 74, 0); }
   100% { box-shadow: 0 0 0 0 rgba(30, 142, 74, 0); }
 }
-.mobile-bar .btn-wa { animation: pulse 2.6s 2s infinite; }
+.mobile-bar .mb-wa { animation: pulse 2.6s 2s infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -983,6 +1006,8 @@ header.scrolled { box-shadow: 0 6px 24px rgba(14, 43, 30, 0.08); background: rgb
   }
   .nav-links { display: none; }
   .menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+  .mobile-bar { display: flex; }
+  footer { padding-bottom: 92px; }
 }
 @media (max-width: 600px) {
   .wrap { padding: 0 18px; }
@@ -992,8 +1017,6 @@ header.scrolled { box-shadow: 0 6px 24px rgba(14, 43, 30, 0.08); background: rgb
     grid-template-columns: 1fr;
   }
   .form-grid > * { min-width: 0; }
-  .mobile-bar { display: flex; }
-  footer { padding-bottom: 92px; }
 }
 
 /* ===== SMALL ADDITIONS (Astro port) ===== */
