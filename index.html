@@ -624,7 +624,6 @@
     gap: 36px;
     align-items: start;
   }
-  .booking-grid > *, .form-grid > * { min-width: 0; }
   .booking-info {
     background: var(--forest-deep);
     color: #fff;
@@ -1004,6 +1003,7 @@
     .hero-grid, .care-grid, .doctors-grid, .booking-grid, .contact-grid {
       grid-template-columns: 1fr;
     }
+    .booking-grid > * { min-width: 0; }
     .services-grid, .gallery-grid, .values-row {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -1017,6 +1017,7 @@
     .services-grid, .gallery-grid, .values-row, .form-grid {
       grid-template-columns: 1fr;
     }
+    .form-grid > * { min-width: 0; }
     .mobile-bar { display: flex; }
     footer { padding-bottom: 92px; }
   }
