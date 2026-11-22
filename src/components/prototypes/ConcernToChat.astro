@@ -1,0 +1,153 @@
+---
+// Prototype C: start from what the patient feels, not from treatment names.
+// Pick a concern and who it is for; the WhatsApp message writes itself, addressed to the right doctor,
+// in English or Telugu, and you see exactly what will be sent.
+import Icon from '../Icon.astro';
+import Avatar from './Avatar.astro';
+import { services, care, doctors, img, clinic } from '../../data/clinic';
+
+const items = services.map((s) => ({ ...s, ...care[s.value] }));
+// Telugu doctor names and phrases: draft, needs a native read before going live.
+const teNames = { sainath: 'డాక్టర్ సాయినాథ్', tulasi: 'డాక్టర్ తులసి' };
+const data = {
+  items: items.map((s) => ({ name: s.name, value: s.value, by: s.by, steps: s.steps, urgent: s.urgent ?? '' })),
+  docs: Object.fromEntries(doctors.map((d) => [d.id, { short: d.short, specialty: d.specialty, te: teNames[d.id] }])),
+  phone: clinic.phone.replace('+', ''),
+};
+const whoFor = [
+  { id: 'me', en: 'Me', te: 'నా కోసం' },
+  { id: 'child', en: 'My child', te: 'మా పిల్లల కోసం' },
+  { id: 'parent', en: 'My parent', te: 'మా అమ్మ/నాన్న కోసం' },
+];
+---
+<section class="py-16" id="proto-c">
+  <div class="wrap grid items-start gap-10 lg:grid-cols-[1.15fr_1fr]">
+    <div>
+      <span class="eyebrow">Tell us what's wrong</span>
+      <h2 class="mt-2 text-[clamp(1.8rem,3.4vw,2.5rem)]">What's bothering you?</h2>
+      <p class="mt-3 text-muted">You don't need to know the treatment name. Pick what you feel; we'll send it to the right doctor.</p>
+
+      <div class="mt-6 grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Your concern">
+        {items.map((s, i) => (
+          <button type="button" role="radio" aria-checked={i === 3 ? 'true' : 'false'} data-concern={i}
+            class="c-opt flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 text-left text-sm font-semibold text-ink transition">
+            <Icon name={s.icon} width={20} class="shrink-0 text-gold" />
+            <span>{s.concern}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div class="flex items-center gap-2" role="radiogroup" aria-label="Who is it for">
+          <span class="text-sm text-muted">For</span>
+          {whoFor.map((w, i) => (
+            <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} data-who={w.id} data-te={w.te}
+              class="c-pill rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold">{w.en}</button>
+          ))}
+        </div>
+        <div class="flex items-center gap-2" role="radiogroup" aria-label="Message language">
+          <span class="text-sm text-muted">In</span>
+          <button type="button" role="radio" aria-checked="true" data-lang="en" class="c-pill rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold">English</button>
+          <button type="button" role="radio" aria-checked="false" data-lang="te" class="c-pill rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold" lang="te">తెలుగు</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- The phone: what will actually be sent -->
+    <div class="mx-auto w-full max-w-[380px] overflow-hidden rounded-[32px] border-[6px] border-forest-deep bg-[#ECE5DD] shadow-md">
+      <div class="flex items-center gap-3 bg-forest-deep px-4 py-3 text-white">
+        <img src={img('logo.jpg')} alt="" class="h-9 w-9 rounded-full" />
+        <div class="min-w-0">
+          <div class="truncate text-sm font-bold">{clinic.shortName}</div>
+          <div class="text-xs text-white/70">{clinic.phoneDisplay}</div>
+        </div>
+      </div>
+      <div class="space-y-3 px-3 py-4">
+        <div class="mx-auto w-fit rounded-lg bg-[#D7F0F6] px-3 py-1 text-[11px] text-ink/70">Goes to the clinic's WhatsApp</div>
+        <div class="ml-auto max-w-[85%] rounded-xl rounded-tr-sm bg-[#D9FDD3] px-3 py-2 text-[0.92rem] leading-snug text-ink shadow-sm">
+          <p id="c-msg" class="whitespace-pre-line"></p>
+          <div class="mt-1 text-right text-[10px] text-ink/50">now ✓✓</div>
+        </div>
+        <div class="flex items-center gap-3 rounded-xl bg-surface/90 p-3 shadow-sm">
+          <span id="c-avatars" class="flex -space-x-3">
+            <span data-av="sainath"><Avatar id="sainath" size={44} /></span>
+            <span data-av="tulasi"><Avatar id="tulasi" size={44} /></span>
+          </span>
+          <div class="min-w-0 text-sm">
+            <div class="font-bold text-forest-deep" id="c-who"></div>
+            <div class="text-xs text-muted" id="c-spec"></div>
+          </div>
+        </div>
+        <details class="rounded-xl bg-surface/90 p-3 text-sm shadow-sm" open>
+          <summary class="cursor-pointer font-bold text-forest-deep">At your first visit</summary>
+          <ol id="c-steps" class="mt-2 list-decimal space-y-1 pl-5 text-ink marker:text-gold"></ol>
+        </details>
+        <p id="c-urgent" class="rounded-xl bg-gold-soft p-3 text-sm text-ink" hidden></p>
+      </div>
+      <div class="flex gap-2 bg-[#F0F2F5] p-3">
+        <a id="c-send" class="btn btn-wa flex-1 justify-center" target="_blank" rel="noopener" href="#"><Icon name="whatsapp" /> Send on WhatsApp</a>
+        <a class="btn btn-outline !px-4" href={`tel:${clinic.phone}`} aria-label="Call the clinic"><Icon name="phone" /></a>
+      </div>
+    </div>
+  </div>
+  <script type="application/json" id="c-data" set:html={JSON.stringify(data)} />
+</section>
+
+<style>
+  .c-opt[aria-checked='true'] { border-color: var(--color-forest); background: var(--color-sage-soft); box-shadow: inset 0 0 0 1px var(--color-forest); }
+  .c-pill[aria-checked='true'] { background: var(--color-forest); border-color: var(--color-forest); color: #fff; }
+  #c-msg.typing { animation: rise 0.35s var(--ease-out); }
+</style>
+
+<script>
+  type Data = {
+    items: { name: string; value: string; by: ('sainath' | 'tulasi')[]; steps: string[]; urgent: string }[];
+    docs: Record<string, { short: string; specialty: string; te: string }>;
+    phone: string;
+  };
+  const root = document.getElementById('proto-c')!;
+  const data: Data = JSON.parse(document.getElementById('c-data')!.textContent!);
+  const state = { concern: 3, who: 'me', whoTe: 'నా కోసం', lang: 'en' };
+  const forEn: Record<string, string> = { me: 'myself', child: 'my child', parent: 'my mother/father' };
+  const $ = (id: string) => document.getElementById(id)!;
+
+  function message() {
+    const s = data.items[state.concern];
+    const both = s.by.length > 1;
+    if (state.lang === 'te') {
+      const to = both ? 'డాక్టర్ గారు' : data.docs[s.by[0]].te + ' గారు';
+      return `నమస్కారం ${to},\n${state.whoTe} ${s.name} గురించి అపాయింట్‌మెంట్ కావాలి.\nఏ సమయం వీలవుతుందో చెప్పగలరా?`;
+    }
+    const to = both ? 'doctors' : data.docs[s.by[0]].short;
+    return `Hello ${to},\nI would like an appointment for ${forEn[state.who]} about ${s.name}.\nWhich time suits you?`;
+  }
+
+  function render() {
+    const s = data.items[state.concern];
+    const both = s.by.length > 1;
+    const msg = $('c-msg');
+    msg.textContent = message();
+    msg.lang = state.lang;
+    msg.classList.remove('typing'); void msg.offsetWidth; msg.classList.add('typing');
+    $('c-who').textContent = both ? 'Dr. Sainath or Dr. Tulasi' : data.docs[s.by[0]].short;
+    $('c-spec').textContent = both ? 'Whoever is in at your slot' : data.docs[s.by[0]].specialty;
+    root.querySelectorAll<HTMLElement>('[data-av]').forEach((a) => (a.hidden = !s.by.includes(a.dataset.av as any)));
+    $('c-steps').innerHTML = s.steps.map((t) => `<li>${t}</li>`).join('');
+    const urgent = $('c-urgent');
+    urgent.hidden = !s.urgent;
+    urgent.textContent = s.urgent;
+    ($('c-send') as HTMLAnchorElement).href = `https://wa.me/${data.phone}?text=${encodeURIComponent(message())}`;
+  }
+
+  const radio = (sel: string, apply: (b: HTMLButtonElement) => void) => {
+    const btns = root.querySelectorAll<HTMLButtonElement>(sel);
+    btns.forEach((b) => b.addEventListener('click', () => {
+      btns.forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+      apply(b); render();
+    }));
+  };
+  radio('[data-concern]', (b) => (state.concern = +b.dataset.concern!));
+  radio('[data-who]', (b) => { state.who = b.dataset.who!; state.whoTe = b.dataset.te!; });
+  radio('[data-lang]', (b) => (state.lang = b.dataset.lang!));
+  render();
+</script>

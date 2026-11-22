@@ -141,20 +141,54 @@ export const doctors: {
   role: string;
   shortRole: string;
   bio: string;
+  short: string; // the prototypes' short label ("Dr. Tulasi")
+  specialty: string;
+  face: { x: number; y: number }; // where the face sits in the photo (0–1), for close-up avatars
 }[] = [
   { id: 'sainath', name: 'Dr. G. Venkata Sainath', shortName: 'Dr. Sainath', teluguName: 'డా. సాయినాథ్ గారు',
+    short: 'Dr. Sainath', specialty: 'MDS Oral & Maxillofacial Surgeon', face: { x: 0.405, y: 0.425 },
     degree: 'BDS, MDS', photo: 'dr-sainath.jpg',
     alt: 'Dr. G. Venkata Sainath at his consultation desk',
     role: 'Oral & Maxillofacial Surgeon · Implantologist',
     shortRole: 'Oral Surgeon & Implantologist',
     bio: 'Specializes in dental implants, painless surgical wisdom tooth removal, jaw fractures, and complex oral surgeries with a calm, reassuring bedside manner.' },
   { id: 'tulasi', name: 'Dr. K. Krishna Tulasi', shortName: 'Dr. Krishna Tulasi', teluguName: 'డా. కృష్ణ తులసి గారు',
+    short: 'Dr. Tulasi', specialty: 'MDS Orthodontist', face: { x: 0.533, y: 0.39 },
     degree: 'BDS, MDS', photo: 'dr-tulasi.jpg',
     alt: 'Dr. K. Krishna Tulasi at her consultation desk',
     role: 'Orthodontist & Dentofacial Orthopaedist · Aligner Specialist',
     shortRole: 'Orthodontist & Aligner Specialist',
     bio: 'Focuses on braces & clips, clear aligners, bite correction, and smile design for children, teens, and adults — combining clinical precision with patient-first care.' },
 ];
+
+export const doctorById = (id: DoctorId) => doctors.find((d) => d.id === id)!;
+
+// Who treats what, and what the first visit looks like. Draft copy: the doctors should confirm it.
+// `by` lists the doctor(s) a patient is seen by; both = whichever doctor is in at that slot.
+export const care: Record<string, { by: DoctorId[]; steps: string[]; urgent?: string; concern: string }> = {
+  'Dental Implants': { by: ['sainath'], concern: 'I have a missing tooth',
+    steps: ['Exam and X-ray to check the bone where the tooth was', 'Implant, bridge or denture: the options and costs side by side', 'If you choose an implant, we plan the date together'] },
+  'Braces and Clips': { by: ['tulasi'], concern: 'My teeth (or my child\'s) are crooked',
+    steps: ['A look at the teeth, bite and jaw growth', 'Photos and X-rays for the treatment plan', 'Metal, ceramic or aligners: what fits, how long, what it costs'] },
+  'Clear Aligners': { by: ['tulasi'], concern: 'I want straighter teeth, without visible braces',
+    steps: ['Check whether aligners suit your teeth', 'Scans and photos to plan the movement', 'See the expected result before you decide'] },
+  'Root Canal Therapy': { by: ['sainath', 'tulasi'], concern: 'A tooth hurts',
+    steps: ['Find the tooth that hurts, with an X-ray', 'Pain relief first, the same visit', 'Root canal or other options, explained before we start'],
+    urgent: 'Pain that keeps you up at night? Call instead of messaging, so we can fit you in sooner.' },
+  'Complete Dentures': { by: ['sainath', 'tulasi'], concern: 'My dentures are loose, or I need new ones',
+    steps: ['Check the gums and the old denture, if you have one', 'Measurements for a denture that fits your mouth', 'Fittings over a few visits until it feels right'] },
+  'Crowns and Bridges': { by: ['sainath', 'tulasi'], concern: 'A tooth is broken, weak or has a gap',
+    steps: ['Exam and X-ray of the tooth', 'Crown, bridge or filling: what the tooth needs', 'Shade matched to your other teeth'] },
+  'Smile Design': { by: ['tulasi'], concern: 'I want a nicer smile',
+    steps: ['Talk about what you would like to change', 'Photos of your face and smile', 'A plan: whitening, contouring, veneers or alignment'] },
+  'Wisdom Tooth Removal': { by: ['sainath'], concern: 'My wisdom tooth is hurting',
+    steps: ['X-ray to see how the tooth sits', 'Whether it needs to come out, and how', 'Removal the same day or a planned date, with aftercare'] },
+  'Gum Surgeries': { by: ['sainath'], concern: 'My gums bleed or are pulling back',
+    steps: ['Gum check and measuring the pockets', 'Cleaning first, often that is enough', 'Surgery only if the gums need it'] },
+  'Jaw Fractures': { by: ['sainath'], concern: 'An injury to the jaw or face',
+    steps: ['Examination and X-ray of the jaw', 'Pain and swelling under control', 'Surgery plan if the bone is broken'],
+    urgent: 'A fresh injury? Please call right away; do not wait for a WhatsApp reply.' },
+};
 
 /** Path to a file in public/assets/images, with the site's base path in front. */
 export const img = (file: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}assets/images/${file}`;
