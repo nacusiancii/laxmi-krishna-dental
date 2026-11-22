@@ -558,8 +558,9 @@ nav.wrap {
 .hours-list { list-style: none; margin-bottom: 24px; }
 .hours-list li {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 12px;
+  gap: 2px 12px;
   padding: 11px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   font-size: 0.9rem;
@@ -917,6 +918,7 @@ header.scrolled { box-shadow: 0 6px 24px rgba(14, 43, 30, 0.08); background: rgb
   .hero-grid, .care-grid, .doctors-grid, .booking-grid, .contact-grid {
     grid-template-columns: 1fr;
   }
+  .booking-grid > * { min-width: 0; }
   .services-grid, .gallery-grid, .values-row {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -930,6 +932,7 @@ header.scrolled { box-shadow: 0 6px 24px rgba(14, 43, 30, 0.08); background: rgb
   .services-grid, .gallery-grid, .values-row, .form-grid {
     grid-template-columns: 1fr;
   }
+  .form-grid > * { min-width: 0; }
   .mobile-bar { display: flex; }
   footer { padding-bottom: 92px; }
 }
