@@ -1,0 +1,7 @@
+# Keep raw originals, personal photos, and old drafts local
+.archive/
+Photos/
+Presense/
+Lakshmi Krishna Dental.html
+.DS_Store
+Thumbs.db
