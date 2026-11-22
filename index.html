@@ -1650,7 +1650,7 @@
           }
         }
       }
-      el.textContent = text;
+      if (el.textContent !== text) el.textContent = text; // don't re-announce the same status every minute
       el.classList.toggle('is-open', open);
       document.querySelectorAll('.hours-list li').forEach(li => li.classList.toggle('now', +li.dataset.session === row));
     }
@@ -1761,15 +1761,6 @@
 
     // It's a soft blur, so half resolution looks the same and costs a quarter
     const SCALE = 0.5;
-    function resize() {
-      const r = canvas.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.round(r.width * SCALE));
-      canvas.height = Math.max(1, Math.round(r.height * SCALE));
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniform2f(uRes, canvas.width, canvas.height);
-    }
-    resize();
-    window.addEventListener('resize', resize);
 
     // Pointer nudges the flow a little; eased so it never jumps
     let mx = 0, my = 0, tx = 0, ty = 0;
@@ -1780,15 +1771,30 @@
 
     const start = performance.now();
     let visible = true, raf = 0, last = 0;
+    function paint(now) {
+      gl.uniform1f(uT, (now - start) / 1000 + 40);
+      gl.uniform2f(uM, mx, my);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    // Resizing the canvas clears it, so repaint right away (matters when only one frame is ever drawn)
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.round(r.width * SCALE));
+      canvas.height = Math.max(1, Math.round(r.height * SCALE));
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      paint(performance.now());
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
     function draw(now) {
       raf = 0;
       if (now - last >= 33) { // ~30fps is plenty for slow motion
         last = now;
         mx += (tx - mx) * 0.04;
         my += (ty - my) * 0.04;
-        gl.uniform1f(uT, (now - start) / 1000 + 40);
-        gl.uniform2f(uM, mx, my);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        paint(now);
       }
       if (visible && !document.hidden && !reduceMotion) raf = requestAnimationFrame(draw);
     }
