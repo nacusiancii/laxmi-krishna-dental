@@ -1,6 +1,7 @@
 ---
-// Prototype S1: Pick by Specialist — puts the two MDS doctors first, then their treatments,
-// first-visit walkthrough, and a live WhatsApp message preview.
+// Prototype S1 (Mobile-First): Pick by Specialist — compact 3-up doctor switcher,
+// single-row swipeable treatment chips on phones (vertical list on desktop),
+// and the Visit 1 + live WhatsApp preview immediately visible in the same viewport.
 import Icon from '../Icon.astro';
 import { clinic, doctors, services, whatsappNumber, img } from '../../data/clinic';
 
@@ -10,22 +11,22 @@ const drTulasi = doctors.find((d) => d.id === 'tulasi')!;
 const groups = [
   {
     id: 'sainath',
-    label: drSainath.shortName,
-    sub: 'Oral Surgery & Implants',
+    short: 'Dr. Sainath',
+    sub: 'Surgery & Implants',
     photos: [drSainath.photo],
     count: services.filter((s) => s.doctor === 'sainath').length,
   },
   {
     id: 'tulasi',
-    label: drTulasi.shortName,
-    sub: 'Braces, Aligners & Smiles',
+    short: 'Dr. Tulasi',
+    sub: 'Braces & Aligners',
     photos: [drTulasi.photo],
     count: services.filter((s) => s.doctor === 'tulasi').length,
   },
   {
     id: 'both',
-    label: 'Both Specialists',
-    sub: 'Family & Restorative Care',
+    short: 'Both',
+    sub: 'Family & Restorative',
     photos: [drSainath.photo, drTulasi.photo],
     count: services.filter((s) => s.doctor === 'both').length,
   },
@@ -39,27 +40,24 @@ const payload = services.map((s) => {
   return {
     ...s,
     doctorLabel: dr ? dr.name : `${drSainath.shortName} & ${drTulasi.shortName}`,
-    doctorRole: dr ? dr.role : 'Both MDS Specialists · Family & Restorative Care',
+    doctorRole: dr ? dr.shortRole : 'Both MDS Specialists · Family Care',
     doctorPhotos: dr ? [img(dr.photo)] : [img(drSainath.photo), img(drTulasi.photo)],
     waMessage: greeting,
     waHref: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(greeting)}`,
   };
 });
 ---
-<section class="bg-cream py-14" data-proto="workbench">
-  <div class="mx-auto max-w-[1120px] px-6">
+<section class="bg-cream py-6 sm:py-12" data-proto="workbench">
+  <div class="mx-auto max-w-[1120px] px-4 sm:px-6">
     <div class="max-w-2xl">
       <span class="eyebrow">Who Treats You</span>
-      <h2 class="mt-2 font-serif text-3xl font-bold text-forest-deep md:text-4xl">
-        Pick a specialist, see what Visit 1 looks like.
+      <h2 class="mt-1.5 font-serif text-2xl font-bold text-forest-deep sm:text-3xl md:text-4xl">
+        Pick a specialist, see Visit 1.
       </h2>
-      <p class="mt-2 text-muted">
-        At Laxmi Krishna Dental, every treatment is done directly by one of our two MDS doctors — never handed off.
-      </p>
     </div>
 
-    {/* Specialist selector cards */}
-    <div class="mt-7 grid gap-3 sm:grid-cols-3" role="tablist" aria-label="Choose a specialist">
+    {/* Row 1: Compact 3-up doctor switcher (fits in one row even at 360px!) */}
+    <div class="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3" role="tablist" aria-label="Choose a specialist">
       {groups.map((g, idx) => (
         <button
           type="button"
@@ -67,113 +65,99 @@ const payload = services.map((s) => {
           aria-selected={idx === 0 ? 'true' : 'false'}
           data-wb-group={g.id}
           class:list={[
-            'wb-tab group flex items-center gap-3.5 rounded-2xl border p-3.5 text-left transition-all cursor-pointer',
+            'wb-tab flex min-w-0 flex-col items-center gap-1.5 rounded-2xl border px-2 py-2.5 text-center transition-all cursor-pointer sm:flex-row sm:gap-3 sm:px-3.5 sm:py-3 sm:text-left',
             idx === 0
               ? 'border-forest bg-forest text-white shadow-sm'
               : 'border-line bg-surface text-forest-deep hover:border-gold-light',
           ]}
         >
-          <div class="flex shrink-0 -space-x-2.5">
+          <div class="flex shrink-0 -space-x-2">
             {g.photos.map((p) => (
-              <span class="h-12 w-12 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2">
+              <span class="h-10 w-10 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2 sm:h-11 sm:w-11">
                 <img src={img(p)} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" />
               </span>
             ))}
           </div>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-2">
-              <strong class="truncate font-serif text-base font-semibold">{g.label}</strong>
-              <span class="wb-count shrink-0 rounded-full bg-white/15 px-2 py-0.5 text-xs font-semibold">
-                {g.count}
-              </span>
-            </div>
-            <span class="wb-sub block truncate text-xs opacity-80">{g.sub}</span>
+          <div class="min-w-0 w-full">
+            <strong class="block truncate font-serif text-xs font-semibold sm:text-base">{g.short}</strong>
+            <span class="hidden truncate text-xs opacity-80 sm:block">{g.sub} ({g.count})</span>
           </div>
         </button>
       ))}
     </div>
 
-    {/* Two-column workbench: treatment list left, visit stage right */}
-    <div class="mt-6 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
-      <div class="flex min-w-0 flex-col gap-2.5" data-wb-list>
+    {/* Mobile: single horizontal snap strip of treatment chips directly above the Visit 1 card.
+        Desktop (lg+): two-column workbench (list left, Visit 1 card right). */}
+    <div class="mt-3.5 grid gap-3.5 lg:mt-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-6">
+      <div
+        class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0 sm:scroll-px-0 lg:flex-col lg:overflow-visible lg:pb-0"
+        data-wb-list
+      >
         {payload.map((s, idx) => (
           <button
             type="button"
             data-wb-item={idx}
             data-wb-doctor={s.doctor}
             class:list={[
-              'wb-item flex items-center gap-3.5 rounded-2xl border p-4 text-left transition-all cursor-pointer',
+              'wb-item flex shrink-0 snap-start items-center gap-2 rounded-full border px-3.5 py-2 text-left transition-all cursor-pointer lg:w-full lg:gap-3.5 lg:rounded-2xl lg:p-3.5',
               s.doctor !== 'sainath' && 'hidden',
               idx === 0
-                ? 'border-forest bg-surface ring-2 ring-gold-light/70 shadow-sm'
-                : 'border-line bg-surface/70 hover:bg-surface hover:border-gold-light',
+                ? 'border-forest bg-forest text-white shadow-sm lg:bg-surface lg:text-forest-deep lg:ring-2 lg:ring-gold-light/70'
+                : 'border-line bg-surface text-forest-deep hover:border-gold-light',
             ]}
           >
-            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sage-soft text-forest">
-              <Icon name={s.icon} width={20} strokeWidth={1.8} />
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <strong class="font-serif text-base font-semibold text-forest-deep">{s.name}</strong>
-                {s.urgent && (
-                  <span class="rounded-full bg-gold-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-gold">
-                    Same-day
-                  </span>
-                )}
-              </div>
-              <span class="block truncate text-xs text-muted">{s.symptom}</span>
-            </div>
-            <span class="text-sm font-bold text-gold">→</span>
+            <span class="wb-ico flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 lg:h-10 lg:w-10 lg:rounded-xl lg:bg-sage-soft lg:text-forest">
+              <Icon name={s.icon} width={16} strokeWidth={1.9} />
+            </span>
+            <span class="min-w-0 lg:flex-1">
+              <strong class="block whitespace-nowrap text-xs font-semibold sm:text-sm lg:font-serif lg:text-base">{s.name}</strong>
+              <span class="hidden truncate text-xs text-muted lg:block">{s.symptom}</span>
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Right stage: specialist + Visit 1 + live WhatsApp preview */}
-      <div class="rounded-3xl border border-line bg-surface p-6 shadow-sm md:p-7" data-wb-stage aria-live="polite">
-        <div class="flex flex-wrap items-center gap-3.5 border-b border-line pb-5">
-          <div class="flex shrink-0 -space-x-3" data-wb-photos>
-            <span class="h-14 w-14 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2">
+      {/* Visit 1 stage — compact on mobile so doctor + Visit 1 + WhatsApp CTA all sit in one screen */}
+      <div class="min-w-0 rounded-3xl border border-line bg-surface p-4 shadow-sm sm:p-6" data-wb-stage aria-live="polite">
+        <div class="flex items-center gap-3 border-b border-line pb-3.5 sm:pb-4">
+          <div class="flex shrink-0 -space-x-2.5" data-wb-photos>
+            <span class="h-11 w-11 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2 sm:h-13 sm:w-13">
               <img src={payload[0].doctorPhotos[0]} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" />
             </span>
           </div>
           <div class="min-w-0 flex-1">
-            <span class="text-[11px] font-bold uppercase tracking-widest text-gold">Your Specialist</span>
-            <h3 class="font-serif text-lg font-bold text-forest-deep" data-wb-doc-name>{payload[0].doctorLabel}</h3>
-            <p class="text-xs text-muted" data-wb-doc-role>{payload[0].doctorRole}</p>
+            <h3 class="truncate font-serif text-base font-bold text-forest-deep sm:text-lg" data-wb-doc-name>{payload[0].doctorLabel}</h3>
+            <p class="truncate text-xs text-muted" data-wb-doc-role>{payload[0].doctorRole}</p>
+          </div>
+          <span class="hidden shrink-0 rounded-full bg-sage-soft px-2.5 py-0.5 text-[11px] font-semibold text-forest sm:inline-flex" data-wb-tag>{payload[0].tag}</span>
+        </div>
+
+        <div class="mt-3.5">
+          <h4 class="font-serif text-xl font-bold text-forest-deep sm:text-2xl" data-wb-title>{payload[0].name}</h4>
+          <p class="mt-1 text-sm leading-snug text-muted" data-wb-blurb>{payload[0].blurb}</p>
+        </div>
+
+        <div class="mt-3.5 grid gap-2.5 sm:grid-cols-2">
+          <div class="rounded-2xl bg-gold-soft/80 px-3.5 py-3">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-gold">Visit 1</span>
+            <p class="mt-0.5 text-xs leading-relaxed text-forest-deep sm:text-sm" data-wb-visit>{payload[0].firstVisit}</p>
+          </div>
+          <div class="rounded-2xl bg-cream px-3.5 py-3">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-sage">Good to know</span>
+            <p class="mt-0.5 text-xs leading-relaxed text-forest-deep sm:text-sm" data-wb-know>{payload[0].goodToKnow}</p>
           </div>
         </div>
 
-        <div class="mt-5">
-          <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h4 class="font-serif text-2xl font-bold text-forest-deep" data-wb-title>{payload[0].name}</h4>
-            <span class="rounded-full bg-sage-soft px-3 py-1 text-xs font-semibold text-forest" data-wb-tag>{payload[0].tag}</span>
-          </div>
-          <p class="mt-2 text-sm leading-relaxed text-muted" data-wb-blurb>{payload[0].blurb}</p>
-        </div>
-
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-2xl bg-gold-soft/80 p-4">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-gold">What happens on Visit 1</span>
-            <p class="mt-1 text-sm text-forest-deep" data-wb-visit>{payload[0].firstVisit}</p>
-          </div>
-          <div class="rounded-2xl bg-cream p-4">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-sage">Good to know</span>
-            <p class="mt-1 text-sm text-forest-deep" data-wb-know>{payload[0].goodToKnow}</p>
-          </div>
-        </div>
-
-        {/* Live WhatsApp preview */}
-        <div class="mt-5 rounded-2xl border border-line bg-cream/70 p-4">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Pre-filled WhatsApp message</span>
-          <p class="mt-1.5 rounded-xl bg-surface px-3.5 py-2.5 text-sm italic text-forest-deep border border-line/70" data-wb-preview>
+        <div class="mt-3.5 rounded-2xl border border-line/80 bg-cream/60 p-3">
+          <p class="text-xs italic leading-snug text-forest-deep sm:text-sm" data-wb-preview>
             “{payload[0].waMessage}”
           </p>
-          <div class="mt-3.5 flex flex-wrap gap-2.5">
-            <a class="btn btn-wa btn-sm" data-wb-wa href={payload[0].waHref} target="_blank" rel="noopener">
-              <Icon name="whatsapp" width={16} /> Message on WhatsApp
+          <div class="mt-3 grid grid-cols-[1fr_auto] gap-2 sm:flex sm:flex-wrap">
+            <a class="btn btn-wa btn-sm justify-center" data-wb-wa href={payload[0].waHref} target="_blank" rel="noopener">
+              <Icon name="whatsapp" width={16} /> Book on WhatsApp
             </a>
-            <a class="btn btn-outline btn-sm" href={`tel:${clinic.phone}`}>
-              <Icon name="phone" width={16} /> Call {clinic.phoneShort}
+            <a class="btn btn-outline btn-sm justify-center px-3.5" href={`tel:${clinic.phone}`} aria-label={`Call ${clinic.phoneShort}`}>
+              <Icon name="phone" width={16} /> <span class="hidden sm:inline">Call {clinic.phoneShort}</span><span class="sm:hidden">Call</span>
             </a>
           </div>
         </div>
@@ -189,6 +173,7 @@ const payload = services.map((s) => {
     const data = JSON.parse(root.querySelector('[data-wb-json]')!.textContent!);
     const tabs = root.querySelectorAll<HTMLButtonElement>('[data-wb-group]');
     const items = root.querySelectorAll<HTMLButtonElement>('[data-wb-item]');
+    const listEl = root.querySelector<HTMLElement>('[data-wb-list]')!;
     const photosEl = root.querySelector('[data-wb-photos]')!;
     const docNameEl = root.querySelector('[data-wb-doc-name]')!;
     const docRoleEl = root.querySelector('[data-wb-doc-role]')!;
@@ -205,15 +190,25 @@ const payload = services.map((s) => {
       items.forEach((btn) => {
         const on = Number(btn.dataset.wbItem) === idx;
         btn.classList.toggle('border-forest', on);
-        btn.classList.toggle('bg-surface', on);
-        btn.classList.toggle('ring-2', on);
-        btn.classList.toggle('ring-gold-light/70', on);
+        btn.classList.toggle('bg-forest', on);
+        btn.classList.toggle('text-white', on);
         btn.classList.toggle('shadow-sm', on);
+        btn.classList.toggle('lg:bg-surface', on);
+        btn.classList.toggle('lg:text-forest-deep', on);
+        btn.classList.toggle('lg:ring-2', on);
+        btn.classList.toggle('lg:ring-gold-light/70', on);
         btn.classList.toggle('border-line', !on);
-        btn.classList.toggle('bg-surface/70', !on);
+        btn.classList.toggle('bg-surface', !on);
+        btn.classList.toggle('text-forest-deep', !on);
+        const ico = btn.querySelector('.wb-ico');
+        if (ico) {
+          ico.classList.toggle('bg-white/15', on);
+          ico.classList.toggle('bg-sage-soft', !on);
+          ico.classList.toggle('text-forest', !on);
+        }
       });
       photosEl.innerHTML = s.doctorPhotos
-        .map((src: string) => `<span class="h-14 w-14 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2"><img src="${src}" alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" /></span>`)
+        .map((src: string) => `<span class="h-11 w-11 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2 sm:h-13 sm:w-13"><img src="${src}" alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" /></span>`)
         .join('');
       docNameEl.textContent = s.doctorLabel;
       docRoleEl.textContent = s.doctorRole;
@@ -246,6 +241,7 @@ const payload = services.map((s) => {
           btn.classList.toggle('hidden', !show);
           if (show && firstIdx === -1) firstIdx = Number(btn.dataset.wbItem);
         });
+        listEl.scrollLeft = 0;
         if (firstIdx >= 0) selectItem(firstIdx);
       });
     });
