@@ -95,7 +95,7 @@ const payload = services.map((s) => {
 
     {/* Two-column workbench: treatment list left, visit stage right */}
     <div class="mt-6 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
-      <div class="flex flex-col gap-2.5" data-wb-list>
+      <div class="flex min-w-0 flex-col gap-2.5" data-wb-list>
         {payload.map((s, idx) => (
           <button
             type="button"
