@@ -1,0 +1,31 @@
+/* Alternative palettes to try out on /lab. Put data-theme="…" on any element
+   (or <html>) and everything inside it, utilities and hand-written styles, follows. */
+[data-theme="clay"] {
+  --color-cream: #FBF6F1;
+  --color-cream-2: #F3E8DD;
+  --color-forest: #6B3A2A;
+  --color-forest-deep: #47261B;
+  --color-sage: #9A5B3F;
+  --color-sage-soft: #F4E4DA;
+  --color-gold: #B5803A;
+  --color-gold-light: #EBD3AE;
+  --color-gold-soft: #FBF2E4;
+  --color-ink: #2A1E19;
+  --color-muted: #6E5A50;
+  --color-line: #E6DACD;
+}
+
+[data-theme="lagoon"] {
+  --color-cream: #F5F9F9;
+  --color-cream-2: #E6F0F0;
+  --color-forest: #0F4C5C;
+  --color-forest-deep: #0A3440;
+  --color-sage: #2B7A86;
+  --color-sage-soft: #DDEFF0;
+  --color-gold: #C17C4E;
+  --color-gold-light: #F1D3BC;
+  --color-gold-soft: #FCF1E9;
+  --color-ink: #13262B;
+  --color-muted: #4E6469;
+  --color-line: #D5E2E3;
+}

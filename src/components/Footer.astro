@@ -1,0 +1,25 @@
+---
+import { clinic, img } from '../data/clinic';
+---
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="brand footer-brand">
+        <img src={img('logo.jpg')} alt="Laxmi Krishna Dental logo" loading="lazy">
+        <div class="brand-text"><strong>{clinic.name}</strong><span>{clinic.tagline}</span></div>
+      </div>
+      <div class="footer-links">
+        <a href="#services">Services</a>
+        <a href="#doctors">Doctors</a>
+        <a href="#clinic">Clinic</a>
+        <a href="#book">Book</a>
+        <a href={clinic.mapsUrl} target="_blank" rel="noopener">Google Maps</a>
+        <a href={clinic.instagram} target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {new Date().getFullYear()} {clinic.name}, Kurnool.</span>
+      <span>{clinic.landmark}, Kurnool – 518003</span>
+    </div>
+  </div>
+</footer>

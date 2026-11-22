@@ -1,0 +1,103 @@
+---
+import '../styles/global.css';
+import { clinic, sessions, img } from '../data/clinic';
+
+interface Props { title?: string; description?: string; noindex?: boolean; theme?: string }
+const {
+  title = `${clinic.name} — Kurnool`,
+  description = 'Specialist dental care in Venkata Ramana Colony, Kurnool by Dr. G. Venkata Sainath (MDS, Oral & Maxillofacial Surgeon) and Dr. K. Krishna Tulasi (MDS, Orthodontist). Implants, braces, aligners, dentures, root canals & more.',
+  noindex = false,
+  theme,
+} = Astro.props;
+
+const siteUrl = new URL(import.meta.env.BASE_URL.replace(/\/?$/, '/'), Astro.site).href;
+const logoUrl = new URL(img('logo.jpg'), Astro.site).href;
+const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Dentist',
+  name: clinic.name,
+  description: 'Multispeciality dental clinic in Kurnool led by Dr. G. Venkata Sainath (MDS, Oral & Maxillofacial Surgeon) and Dr. K. Krishna Tulasi (MDS, Orthodontist).',
+  telephone: clinic.phone,
+  email: clinic.email,
+  url: siteUrl,
+  image: logoUrl,
+  sameAs: [clinic.instagram, clinic.mapsUrl],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: clinic.landmark,
+    addressLocality: 'Kurnool',
+    addressRegion: 'Andhra Pradesh',
+    postalCode: '518003',
+    addressCountry: 'IN',
+  },
+  geo: { '@type': 'GeoCoordinates', latitude: clinic.geo.lat, longitude: clinic.geo.lng },
+  openingHoursSpecification: sessions.map((s) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: s.days.length === 1 ? DAY_NAMES[s.days[0]] : s.days.map((d) => DAY_NAMES[d]),
+    opens: hhmm(s.from),
+    closes: hhmm(s.to),
+  })),
+};
+---
+<!DOCTYPE html>
+<html lang="en" data-theme={theme}>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+<meta name="description" content={description}>
+{noindex && <meta name="robots" content="noindex">}
+<meta name="theme-color" content="#0E2B1E">
+<meta property="og:title" content={title}>
+<meta property="og:description" content="Healthy Smiles, Happy Lives. Specialist couple-run dental clinic in Kurnool — Oral Surgery, Implants, Braces, Aligners, Dentures & Family Dental Care.">
+<meta property="og:type" content="website">
+<meta property="og:image" content={logoUrl}>
+<script is:inline>document.documentElement.classList.add('js');</script>
+<link rel="icon" type="image/png" href={img('favicon.png')}>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+{!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+</head>
+<body>
+<slot />
+
+<script>
+  // Header shadow once the page scrolls
+  const header = document.querySelector('header');
+  if (header) {
+    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // Scroll reveal: siblings in the same grid come in one after another
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
+  revealEls.forEach((el) => {
+    const siblings = [...el.parentElement!.children].filter((c) => c.hasAttribute('data-reveal'));
+    el.style.setProperty('--d', (siblings.indexOf(el) % 6) * 0.08 + 's');
+  });
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const el = entry.target as HTMLElement;
+          el.classList.add('in');
+          io.unobserve(el);
+          // hand control back to the card's own hover styles once it has arrived
+          setTimeout(() => { el.removeAttribute('data-reveal'); el.classList.remove('in'); el.style.removeProperty('--d'); },
+            900 + parseFloat(el.style.getPropertyValue('--d') || '0') * 1000);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach((el) => io.observe(el));
+  } else {
+    revealEls.forEach((el) => el.classList.add('in'));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+---
+import { img } from '../data/clinic';
+const photos = [
+  { file: 'clinic-operatory.jpg', alt: 'Modern dental chairs and treatment room', title: 'Modern Treatment Suites', text: 'Dual dental chairs with strict sterilization & hygiene' },
+  { file: 'clinic-reception.jpg', alt: 'Laxmi Krishna Dental reception desk and logo wall', title: 'Calm Reception Area', text: 'Unhurried consultations in a homely setting' },
+  { file: 'clinic-exterior.jpg', alt: 'Laxmi Krishna Multispeciality Dental Clinic exterior beside HP Petrol Bunk', title: 'Easy to Spot on the Main Road', text: 'Beside HP Petrol Bunk, Venkata Ramana Colony' },
+];
+---
+<section class="section" id="clinic">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Inside Our Clinic</span>
+      <h2>Clean, modern, and easy to reach.</h2>
+      <p>Located right beside the HP Petrol Bunk in Venkata Ramana Colony, Kurnool — easy to find with convenient parking right outside.</p>
+    </div>
+    <div class="gallery-grid">
+      {photos.map((p) => (
+        <figure class="gallery-item" data-reveal>
+          <img src={img(p.file)} alt={p.alt} loading="lazy">
+          <figcaption class="gallery-caption"><strong>{p.title}</strong><span>{p.text}</span></figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>

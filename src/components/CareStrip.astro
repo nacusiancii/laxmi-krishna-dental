@@ -1,0 +1,22 @@
+---
+const boxes = [
+  { tag: 'For Elders & Families', title: 'Gentle restorative & surgical care',
+    text: 'Calm, ground-floor clinic with zero hospital rush and patient explanations at every step — ideal for seniors needing comfortable dentures, implants, crowns, or painless root canals.',
+    tags: ['Dental Implants', 'Complete Dentures', 'Crowns & Bridges', 'Root Canal Therapy'] },
+  { tag: 'For Teens & Young Adults', title: 'Specialist braces, aligners & smile care',
+    text: 'Treated directly by an MDS Orthodontist and an MDS Oral Surgeon — from metal & ceramic clips to invisible clear aligners, smile design, and comfortable wisdom tooth removal.',
+    tags: ['Braces & Clips', 'Clear Aligners', 'Smile Design', 'Wisdom Tooth Removal'] },
+];
+---
+<section class="care-strip" aria-label="Who we care for">
+  <div class="wrap care-grid">
+    {boxes.map((b) => (
+      <div class="care-box" data-reveal>
+        <span class="tag">{b.tag}</span>
+        <h3>{b.title}</h3>
+        <p>{b.text}</p>
+        <div class="care-tags">{b.tags.map((t) => <span>{t}</span>)}</div>
+      </div>
+    ))}
+  </div>
+</section>

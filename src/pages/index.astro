@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import HeroSplit from '../components/heroes/HeroSplit.astro';
+import CareStrip from '../components/CareStrip.astro';
+import Services from '../components/Services.astro';
+import Doctors from '../components/Doctors.astro';
+import Gallery from '../components/Gallery.astro';
+import Booking from '../components/Booking.astro';
+import Location from '../components/Location.astro';
+import Footer from '../components/Footer.astro';
+import MobileBar from '../components/MobileBar.astro';
+---
+<Base>
+  <Header />
+  <main id="top">
+    <HeroSplit />
+    <CareStrip />
+    <Services />
+    <Doctors />
+    <Gallery />
+    <Booking />
+    <Location />
+  </main>
+  <Footer />
+  <MobileBar />
+</Base>

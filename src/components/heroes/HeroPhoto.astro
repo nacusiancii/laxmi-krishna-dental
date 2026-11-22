@@ -1,0 +1,26 @@
+---
+// Variant: full-bleed clinic photo with the message on a dark scrim, live open/closed state up top.
+import Icon from '../Icon.astro';
+import { clinic, whatsappLink, img } from '../../data/clinic';
+---
+<section class="relative isolate overflow-hidden">
+  <img class="absolute inset-0 -z-10 h-full w-full object-cover" src={img('clinic-operatory.jpg')} alt="" loading="lazy">
+  <div class="absolute inset-0 -z-10 bg-gradient-to-r from-forest-deep/95 via-forest-deep/75 to-forest-deep/20"></div>
+  <div class="mx-auto max-w-[1120px] px-6 py-20 md:py-28">
+    <div class="max-w-xl text-white">
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-gold-light">
+        <Icon name="pin" width={15} /> {clinic.landmark}
+      </span>
+      <h1 class="mt-5 font-serif text-4xl font-semibold leading-tight text-white md:text-6xl">
+        Your smile, in <em class="text-gold-light">specialist</em> hands.
+      </h1>
+      <p class="mt-5 text-lg text-white/85">
+        Implants, braces, aligners and gentle everyday care, from two MDS specialists who explain every step in Telugu or English.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a class="btn btn-wa" href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" /> Book on WhatsApp</a>
+        <a class="btn border-white/60 text-white hover:bg-white hover:text-forest-deep" href={`tel:${clinic.phone}`}><Icon name="phone" /> Call {clinic.phoneShort}</a>
+      </div>
+    </div>
+  </div>
+</section>

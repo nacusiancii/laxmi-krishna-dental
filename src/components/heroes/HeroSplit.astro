@@ -1,0 +1,44 @@
+---
+// The live hero: copy on the left, clinic photo card on the right, soft shader behind.
+import Icon from '../Icon.astro';
+import HeroShader from '../HeroShader.astro';
+import { clinic, whatsappLink, img } from '../../data/clinic';
+---
+<section class="hero">
+  <HeroShader />
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Venkata Ramana Colony, Kurnool</span>
+      <h1>Specialist dental care, with the <em>warmth of home</em>.</h1>
+      <p class="hero-lead">
+        Led by an MDS husband-and-wife specialist team — an <strong>Oral &amp; Maxillofacial Surgeon</strong> and an <strong>Orthodontist</strong> — Laxmi Krishna Multispeciality Dental Clinic brings calm, honest treatment under one roof.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-wa" href={whatsappLink()} target="_blank" rel="noopener">
+          <Icon name="whatsapp" /> Book on WhatsApp
+        </a>
+        <a class="btn btn-outline" href={`tel:${clinic.phone}`}>
+          <Icon name="phone" /> Call {clinic.phoneShort}
+        </a>
+      </div>
+      <div class="hero-badges">
+        {['2 MDS Specialists', 'Calm, Ground-Floor Clinic', 'Open All 7 Days'].map((b) => (
+          <span class="pill"><Icon name="check" strokeWidth={2.2} /> {b}</span>
+        ))}
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card">
+        <img class="main-photo" src={img('clinic-waiting.jpg')} alt="Clean, bright reception and waiting room at Laxmi Krishna Multispeciality Dental Clinic" fetchpriority="high">
+        <div class="hero-card-bar">
+          <img src={img('logo.jpg')} alt="Laxmi Krishna Dental emblem">
+          <div>
+            <strong>{clinic.tagline}</strong>
+            <span>{clinic.landmark}, Kurnool</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

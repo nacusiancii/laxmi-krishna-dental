@@ -1,0 +1,57 @@
+---
+import Icon from './Icon.astro';
+import { services, serviceFilters } from '../data/clinic';
+---
+<section class="section" id="services">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Our Services</span>
+      <h2>Complete dental care, all under one roof.</h2>
+      <p>Every treatment is explained in plain language before we begin — no unnecessary procedures, no surprises.</p>
+    </div>
+
+    <div class="filter-tabs" role="group" aria-label="Filter services" data-reveal>
+      {serviceFilters.map((f) => (
+        <button class:list={['filter-btn', { active: f.id === 'all' }]} data-filter={f.id} aria-pressed={f.id === 'all' ? 'true' : 'false'}>
+          {f.label} ({f.id === 'all' ? services.length : services.filter((s) => s.cat === f.id).length})
+        </button>
+      ))}
+    </div>
+
+    <div class="services-grid">
+      {services.map((s) => (
+        <article class="service-card" data-cat={s.cat} data-reveal>
+          <div class="service-top">
+            <div class="service-icon"><Icon name={s.icon} strokeWidth={1.8} /></div>
+            <span class="service-cat">{s.tag}</span>
+          </div>
+          <h3>{s.name}</h3>
+          <p>{s.blurb}</p>
+          <a class="service-link" href="#book" data-select={s.value}>Book consultation →</a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const serviceCards = document.querySelectorAll<HTMLElement>('.service-card');
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => { b.classList.toggle('active', b === btn); b.setAttribute('aria-pressed', String(b === btn)); });
+      const filter = btn.dataset.filter;
+      let i = 0;
+      serviceCards.forEach((card) => {
+        const hide = filter !== 'all' && card.dataset.cat !== filter;
+        card.classList.toggle('hidden', hide);
+        card.classList.remove('pop');
+        if (!hide) {
+          void card.offsetWidth; // restart the animation
+          card.style.animationDelay = (i++ * 0.05) + 's';
+          card.classList.add('pop');
+        }
+      });
+    });
+  });
+</script>

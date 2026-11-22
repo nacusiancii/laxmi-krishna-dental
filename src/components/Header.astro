@@ -1,0 +1,48 @@
+---
+import Icon from './Icon.astro';
+import { img } from '../data/clinic';
+---
+<header>
+  <nav class="wrap" aria-label="Primary navigation">
+    <a href="#top" class="brand">
+      <img src={img('logo.jpg')} alt="Laxmi Krishna Dental Clinic logo">
+      <div class="brand-text">
+        <strong>Laxmi Krishna Dental</strong>
+        <span>Multispeciality Clinic · Kurnool</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#doctors">Doctors</a>
+      <a href="#clinic">Clinic</a>
+      <a href="#location">Location &amp; Hours</a>
+      <a href="#book" class="nav-cta">Book Appointment</a>
+    </div>
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
+      <Icon name="menu" width={22} class="icon-open" />
+      <Icon name="close" width={22} class="icon-close" />
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services">Services</a>
+    <a href="#doctors">Meet the Doctors</a>
+    <a href="#clinic">Inside the Clinic</a>
+    <a href="#book">Book Appointment</a>
+    <a href="#location">Location &amp; Hours</a>
+  </div>
+</header>
+
+<script>
+  const menuBtn = document.getElementById('menuBtn')!;
+  const mobileMenu = document.getElementById('mobileMenu')!;
+  const setOpen = (open: boolean) => {
+    mobileMenu.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+  };
+  menuBtn.addEventListener('click', () => setOpen(!mobileMenu.classList.contains('open')));
+  mobileMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+  // Escape closes the menu and hands focus back to the button
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mobileMenu.classList.contains('open')) { setOpen(false); menuBtn.focus(); }
+  });
+</script>

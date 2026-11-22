@@ -1,0 +1,180 @@
+---
+import Icon from './Icon.astro';
+import { clinic, sessions, services } from '../data/clinic';
+---
+<section class="section section-alt" id="book">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Book an Appointment</span>
+      <h2>Reserve your visit in 30 seconds.</h2>
+      <p>Fill in your details below — it opens a pre-filled WhatsApp message directly to our clinic so we can confirm your slot quickly.</p>
+    </div>
+
+    <div class="booking-grid">
+      <div class="booking-info" data-reveal>
+        <h3>Clinic Timings</h3>
+        <p class="open-status" id="openStatus" aria-live="polite"></p>
+        <p>Open all 7 days of the week. Walk-ins are welcome, and pre-booked slots help keep your wait time minimal.</p>
+        <ul class="hours-list">
+          {sessions.map((s, i) => <li data-session={i}><span>{s.label}</span><span>{s.hours}</span></li>)}
+        </ul>
+        <a class="direct-call" href={`tel:${clinic.phone}`}>
+          <Icon name="phone" width={24} style="color: var(--color-gold-light)" />
+          <div>
+            <strong>{clinic.phoneDisplay}</strong>
+            <span>Prefer calling? Tap to dial our front desk</span>
+          </div>
+        </a>
+      </div>
+
+      <form class="booking-form" id="bookingForm" data-reveal>
+        <div class="form-grid">
+          <div class="field">
+            <label for="patientName">Patient Name</label>
+            <input id="patientName" type="text" required autocomplete="name" placeholder="e.g. Ramesh Kumar">
+          </div>
+          <div class="field">
+            <label for="patientPhone">Phone Number</label>
+            <input id="patientPhone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="e.g. 98480 12345">
+          </div>
+          <div class="field">
+            <label for="serviceSelect">Treatment / Concern</label>
+            <select id="serviceSelect">
+              <option value="General Checkup & Consultation">General Checkup &amp; Consultation</option>
+              {services.map((s) => <option value={s.value}>{s.name}</option>)}
+            </select>
+          </div>
+          <div class="field">
+            <label for="slotSelect">Preferred Slot</label>
+            <select id="slotSelect">
+              {sessions.map((s, i) => <option value={s.slot} data-days={s.days.join(',')}>{s.slot}</option>)}
+            </select>
+          </div>
+          <div class="field full">
+            <label for="preferredDate">Preferred Date</label>
+            <input id="preferredDate" type="date">
+            <span class="field-hint" id="dateHint" aria-live="polite"></span>
+          </div>
+          <div class="field full">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" placeholder="e.g. tooth pain on lower right side, or braces inquiry for my daughter"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-wa"><Icon name="whatsapp" /> Send Request on WhatsApp</button>
+        </div>
+        <p class="form-note">Opens WhatsApp with your details pre-filled to {clinic.phoneDisplay}.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { sessions, whatsappLink } from '../data/clinic';
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const form = document.getElementById('bookingForm') as HTMLFormElement;
+  const serviceSelect = document.getElementById('serviceSelect') as HTMLSelectElement;
+  const slotSelect = document.getElementById('slotSelect') as HTMLSelectElement;
+  const dateInput = document.getElementById('preferredDate') as HTMLInputElement;
+  const dateHint = document.getElementById('dateHint')!;
+  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // "Now" in clinic time (IST), whatever timezone the visitor's phone is in
+  function clinicNow() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata', weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
+    }).formatToParts(new Date()).map((p) => [p.type, p.value]));
+    return {
+      day: DAYS.indexOf(parts.weekday),
+      mins: (+parts.hour % 24) * 60 + +parts.minute,
+      date: `${parts.year}-${parts.month}-${parts.day}`,
+    };
+  }
+
+  // Pre-select the treatment when "Book consultation" is tapped on a card
+  document.querySelectorAll<HTMLAnchorElement>('.service-link[data-select]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      serviceSelect.value = link.dataset.select!;
+      // land on the form itself (on phones the timings card sits above it) and show what was picked
+      e.preventDefault();
+      form.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      serviceSelect.classList.remove('flash');
+      void serviceSelect.offsetWidth;
+      serviceSelect.classList.add('flash');
+    });
+  });
+
+  // Earliest date is today in Kurnool (not UTC, which is still "yesterday" until 5:30 AM IST)
+  dateInput.min = clinicNow().date;
+
+  // Only offer slots the clinic actually runs on the chosen day (Sunday has one short slot)
+  dateInput.addEventListener('change', () => {
+    if (!dateInput.value) { [...slotSelect.options].forEach((o) => (o.disabled = false)); dateHint.textContent = ''; return; }
+    const day = new Date(dateInput.value + 'T12:00:00').getDay();
+    const options = [...slotSelect.options];
+    options.forEach((o) => (o.disabled = !o.dataset.days!.split(',').map(Number).includes(day)));
+    if (slotSelect.selectedOptions[0]?.disabled) {
+      slotSelect.value = options.find((o) => !o.disabled)!.value;
+      dateHint.textContent = day === 0 ? 'Sundays have one slot: 11:00 AM – 1:00 PM.' : 'Slot updated to match that day.';
+    } else {
+      dateHint.textContent = '';
+    }
+  });
+
+  // WhatsApp booking submission
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement).value.trim();
+    const lines = [
+      'Hello Laxmi Krishna Dental, I would like to book an appointment:',
+      '',
+      'Name: ' + val('patientName'),
+      'Phone: ' + val('patientPhone'),
+      'Treatment: ' + serviceSelect.value,
+      // "Mon, 30 Nov 2026" reads better at the front desk than "2026-11-30"
+      'Preferred Date: ' + (dateInput.value
+        ? new Date(dateInput.value + 'T12:00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+        : 'Flexible'),
+      'Preferred Slot: ' + slotSelect.value,
+    ];
+    const notes = val('notes');
+    if (notes) lines.push('Notes: ' + notes);
+    window.open(whatsappLink(lines.join('\n')), '_blank', 'noopener');
+  });
+
+  // Live "Open now / Closed" badge, always in clinic time (IST), and the matching row lit up
+  const statusEl = document.getElementById('openStatus')!;
+  const fmt = (m: number) => {
+    const h = Math.floor(m / 60), mm = String(m % 60).padStart(2, '0');
+    return ((h + 11) % 12 + 1) + ':' + mm + (h < 12 ? ' AM' : ' PM');
+  };
+  function update() {
+    const { day, mins } = clinicNow();
+    let text = '', open = false, row: number | null = null;
+    const nowIdx = sessions.findIndex((s) => s.days.includes(day) && mins >= s.from && mins < s.to);
+    if (nowIdx >= 0) {
+      open = true; row = nowIdx;
+      text = 'Open now · until ' + fmt(sessions[nowIdx].to);
+    } else {
+      // next opening: later today, else the next day that has a session
+      for (let ahead = 0; ahead < 7 && row === null; ahead++) {
+        const d = (day + ahead) % 7;
+        const next = sessions.map((s, i) => ({ ...s, i }))
+          .filter((s) => s.days.includes(d) && (ahead > 0 || s.from > mins))
+          .sort((a, b) => a.from - b.from)[0];
+        if (next) {
+          row = next.i;
+          const when = ahead === 0 ? 'today' : ahead === 1 ? 'tomorrow' : DAYS[d];
+          text = 'Closed now · opens ' + when + ' at ' + fmt(next.from);
+        }
+      }
+    }
+    if (statusEl.textContent !== text) statusEl.textContent = text; // don't re-announce the same status every minute
+    statusEl.classList.toggle('is-open', open);
+    document.querySelectorAll<HTMLElement>('.hours-list li').forEach((li) => li.classList.toggle('now', +li.dataset.session! === row));
+  }
+  update();
+  setInterval(update, 60000);
+</script>

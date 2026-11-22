@@ -1,0 +1,41 @@
+---
+import { doctors, img } from '../data/clinic';
+const values = [
+  { title: 'Explain first, treat second', text: 'We walk you through your X-ray, options, and costs in clear Telugu or English before starting.' },
+  { title: 'Only what you need', text: "Honest recommendations focused on saving your natural teeth — never upselling treatments you don't need." },
+  { title: 'Calm, accessible space', text: 'A clean, independent ground-floor clinic so seniors and families always feel unhurried and comfortable.' },
+];
+---
+<section class="section section-alt" id="doctors">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Meet the Specialists</span>
+      <h2>Two MDS specialists, one family clinic.</h2>
+      <p>You are always seen by the doctors themselves — never handed off to rotating junior staff.</p>
+    </div>
+
+    <div class="doctors-grid">
+      {doctors.map((d) => (
+        <article class="doctor-card" data-reveal>
+          <div class="doctor-photo"><img src={img(d.photo)} alt={d.alt} loading="lazy"></div>
+          <div class="doctor-body">
+            <span class="doctor-degree">{d.degree}</span>
+            <h3>{d.name}</h3>
+            <div class="doctor-role">{d.role}</div>
+            <p>{d.bio}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="values-row">
+      {values.map((v, i) => (
+        <div class="value-card" data-reveal>
+          <span>{String(i + 1).padStart(2, '0')}</span>
+          <h4>{v.title}</h4>
+          <p>{v.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
