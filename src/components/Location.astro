@@ -2,6 +2,9 @@
 import Icon from './Icon.astro';
 import { clinic } from '../data/clinic';
 const directions = `https://www.google.com/maps/dir/?api=1&destination=${clinic.geo.lat},${clinic.geo.lng}`;
+const shareLocationUrl = `https://wa.me/?text=${encodeURIComponent(
+  `${clinic.name}\n${clinic.addressLines.join(' ')}\nPhone: ${clinic.phoneDisplay}\nLocation: ${clinic.mapsUrl}`
+)}`;
 ---
 <section class="section" id="location">
   <div class="wrap">
@@ -17,9 +20,14 @@ const directions = `https://www.google.com/maps/dir/?api=1&destination=${clinic.
           <div>
             <h4>Clinic Address</h4>
             <p id="clinicAddress">{clinic.addressLines[0]}<br>{clinic.addressLines[1]}</p>
-            <button type="button" class="copy-btn" id="copyAddress" hidden>
-              <Icon name="copy" width={14} /> <span>Copy address</span>
-            </button>
+            <div class="address-actions">
+              <button type="button" class="copy-btn" id="copyAddress" hidden>
+                <Icon name="copy" width={14} /> <span>Copy address</span>
+              </button>
+              <a class="copy-btn share-wa-btn" href={shareLocationUrl} target="_blank" rel="noopener">
+                <Icon name="whatsapp" width={14} /> <span>Share on WhatsApp</span>
+              </a>
+            </div>
           </div>
         </div>
         <div class="contact-item" data-reveal>

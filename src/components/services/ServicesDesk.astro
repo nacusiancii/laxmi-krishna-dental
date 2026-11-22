@@ -1,0 +1,206 @@
+---
+// Prototype S3: The Consultation Desk — compact avatar-tagged index rail + brass-nameplate
+// specialist sheet + live English / Telugu WhatsApp message switcher.
+import Icon from '../Icon.astro';
+import { clinic, doctors, services, whatsappNumber, img } from '../../data/clinic';
+
+const drSainath = doctors.find((d) => d.id === 'sainath')!;
+const drTulasi = doctors.find((d) => d.id === 'tulasi')!;
+
+const payload = services.map((s) => {
+  const dr = s.doctor === 'sainath' ? drSainath : s.doctor === 'tulasi' ? drTulasi : null;
+  const enMsg = dr
+    ? `Hello ${dr.shortName}, I would like to book a consultation for ${s.name} at Laxmi Krishna Dental.`
+    : `Hello Laxmi Krishna Dental, I would like to book a consultation for ${s.name}.`;
+  const teMsg = dr
+    ? `నమస్కారం ${dr.teluguName}, లక్ష్మీ కృష్ణ డెంటల్ క్లినిక్‌లో ${s.teluguLabel} కోసం అపాయింట్‌మెంట్ కావాలి.`
+    : `నమస్కారం, లక్ష్మీ కృష్ణ డెంటల్ క్లినిక్‌లో ${s.teluguLabel} కోసం అపాయింట్‌మెంట్ కావాలి.`;
+  return {
+    ...s,
+    doctorName: dr ? dr.name : `${drSainath.shortName} & ${drTulasi.shortName}`,
+    doctorBadge: dr ? `${dr.degree} · ${dr.shortRole}` : 'Both MDS Specialists · Family Dental Care',
+    doctorPhotos: dr ? [img(dr.photo)] : [img(drSainath.photo), img(drTulasi.photo)],
+    enMsg,
+    teMsg,
+    enHref: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(enMsg)}`,
+    teHref: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(teMsg)}`,
+  };
+});
+---
+<section class="bg-cream py-14" data-proto="desk">
+  <div class="mx-auto max-w-[1120px] px-6">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="max-w-xl">
+        <span class="eyebrow">The Consultation Desk</span>
+        <h2 class="mt-2 font-serif text-3xl font-bold text-forest-deep md:text-4xl">
+          Every treatment, paired with its doctor — in English or తెలుగు.
+        </h2>
+      </div>
+      <div class="flex items-center gap-3 text-xs text-muted">
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-6 w-6 overflow-hidden rounded-full border border-gold-light bg-cream-2">
+            <img src={img(drSainath.photo)} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.2]" />
+          </span>
+          {drSainath.shortName}
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-6 w-6 overflow-hidden rounded-full border border-gold-light bg-cream-2">
+            <img src={img(drTulasi.photo)} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.2]" />
+          </span>
+          {drTulasi.shortName}
+        </span>
+      </div>
+    </div>
+
+    <div class="mt-7 overflow-hidden rounded-3xl border border-line bg-surface shadow-sm lg:grid lg:grid-cols-[0.82fr_1.18fr]">
+      {/* Left rail: all 10 treatments with specialist avatar dots */}
+      <div class="border-b border-line bg-cream/60 p-3 lg:border-b-0 lg:border-r lg:p-4">
+        <div class="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+          {payload.map((s, idx) => (
+            <button
+              type="button"
+              data-desk-row={idx}
+              class:list={[
+                'desk-row flex shrink-0 items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-left transition-all cursor-pointer lg:w-full',
+                idx === 0
+                  ? 'bg-forest text-white shadow-sm'
+                  : 'text-forest-deep hover:bg-surface',
+              ]}
+            >
+              <span class="flex items-center gap-2.5 min-w-0">
+                <Icon name={s.icon} width={17} strokeWidth={1.8} class="shrink-0 opacity-85" />
+                <span class="truncate text-sm font-semibold">{s.name}</span>
+              </span>
+              <span class="flex shrink-0 -space-x-1.5">
+                {s.doctorPhotos.map((src) => (
+                  <span class="h-6 w-6 overflow-hidden rounded-full border border-gold-light bg-cream-2">
+                    <img src={src} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.2]" />
+                  </span>
+                ))}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Right sheet: brass-nameplate header + details + EN/TE WhatsApp toggle */}
+      <div class="flex flex-col justify-between p-6 md:p-8" aria-live="polite">
+        <div>
+          {/* Brass-nameplate-inspired specialist strip */}
+          <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-gold-light/80 bg-gold-soft/70 p-4">
+            <div class="flex shrink-0 -space-x-3" data-desk-photos>
+              <span class="h-14 w-14 overflow-hidden rounded-full border-2 border-gold bg-cream-2">
+                <img src={payload[0].doctorPhotos[0]} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" />
+              </span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <strong class="block font-serif text-lg tracking-tight text-forest-deep" data-desk-doc>{payload[0].doctorName}</strong>
+              <span class="block text-xs font-semibold uppercase tracking-wider text-gold" data-desk-badge>{payload[0].doctorBadge}</span>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h3 class="font-serif text-2xl font-bold text-forest-deep md:text-3xl" data-desk-title>{payload[0].name}</h3>
+              <span class="text-sm font-medium text-sage" data-desk-telugu>{payload[0].teluguLabel}</span>
+            </div>
+            <p class="mt-2.5 text-sm leading-relaxed text-muted" data-desk-blurb>{payload[0].blurb}</p>
+          </div>
+
+          <dl class="mt-6 grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl border border-line bg-cream/60 p-4">
+              <dt class="text-[11px] font-bold uppercase tracking-wider text-gold">At your first visit</dt>
+              <dd class="mt-1 text-sm text-forest-deep" data-desk-visit>{payload[0].firstVisit}</dd>
+            </div>
+            <div class="rounded-2xl border border-line bg-cream/60 p-4">
+              <dt class="text-[11px] font-bold uppercase tracking-wider text-sage">Good to know</dt>
+              <dd class="mt-1 text-sm text-forest-deep" data-desk-know>{payload[0].goodToKnow}</dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* EN / తెలుగు WhatsApp composer */}
+        <div class="mt-6 border-t border-line pt-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-muted">WhatsApp message language</span>
+            <div class="inline-flex rounded-full border border-line bg-cream p-0.5 text-xs font-semibold">
+              <button type="button" data-desk-lang="en" class="rounded-full bg-forest px-3 py-1 text-white cursor-pointer">English</button>
+              <button type="button" data-desk-lang="te" class="rounded-full px-3 py-1 text-muted cursor-pointer">తెలుగు</button>
+            </div>
+          </div>
+          <p class="mt-2.5 rounded-xl border border-line/80 bg-cream/50 px-3.5 py-2.5 text-sm text-forest-deep" data-desk-msg>
+            {payload[0].enMsg}
+          </p>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <a class="btn btn-wa btn-sm" data-desk-wa href={payload[0].enHref} target="_blank" rel="noopener">
+              <Icon name="whatsapp" width={16} /> Send on WhatsApp
+            </a>
+            <a class="btn btn-outline btn-sm" href={`tel:${clinic.phone}`}>
+              <Icon name="phone" width={16} /> Call {clinic.phoneShort}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-desk-json set:html={JSON.stringify(payload)} />
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-proto="desk"]').forEach((root) => {
+    const data = JSON.parse(root.querySelector('[data-desk-json]')!.textContent!);
+    const rows = root.querySelectorAll<HTMLButtonElement>('[data-desk-row]');
+    const langBtns = root.querySelectorAll<HTMLButtonElement>('[data-desk-lang]');
+    const photosEl = root.querySelector('[data-desk-photos]')!;
+    const docEl = root.querySelector('[data-desk-doc]')!;
+    const badgeEl = root.querySelector('[data-desk-badge]')!;
+    const titleEl = root.querySelector('[data-desk-title]')!;
+    const teluguEl = root.querySelector('[data-desk-telugu]')!;
+    const blurbEl = root.querySelector('[data-desk-blurb]')!;
+    const visitEl = root.querySelector('[data-desk-visit]')!;
+    const knowEl = root.querySelector('[data-desk-know]')!;
+    const msgEl = root.querySelector('[data-desk-msg]')!;
+    const waEl = root.querySelector<HTMLAnchorElement>('[data-desk-wa]')!;
+
+    let current = 0;
+    let lang: 'en' | 'te' = 'en';
+
+    function render() {
+      const s = data[current];
+      rows.forEach((r) => {
+        const on = Number(r.dataset.deskRow) === current;
+        r.classList.toggle('bg-forest', on);
+        r.classList.toggle('text-white', on);
+        r.classList.toggle('shadow-sm', on);
+        r.classList.toggle('text-forest-deep', !on);
+      });
+      photosEl.innerHTML = s.doctorPhotos
+        .map((src: string) => `<span class="h-14 w-14 overflow-hidden rounded-full border-2 border-gold bg-cream-2"><img src="${src}" alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" /></span>`)
+        .join('');
+      docEl.textContent = s.doctorName;
+      badgeEl.textContent = s.doctorBadge;
+      titleEl.textContent = s.name;
+      teluguEl.textContent = s.teluguLabel;
+      blurbEl.textContent = s.blurb;
+      visitEl.textContent = s.firstVisit;
+      knowEl.textContent = s.goodToKnow;
+      msgEl.textContent = lang === 'en' ? s.enMsg : s.teMsg;
+      waEl.href = lang === 'en' ? s.enHref : s.teHref;
+    }
+
+    rows.forEach((r) => r.addEventListener('click', () => { current = Number(r.dataset.deskRow); render(); }));
+    langBtns.forEach((b) => {
+      b.addEventListener('click', () => {
+        lang = b.dataset.deskLang as 'en' | 'te';
+        langBtns.forEach((x) => {
+          const on = x === b;
+          x.classList.toggle('bg-forest', on);
+          x.classList.toggle('text-white', on);
+          x.classList.toggle('text-muted', !on);
+        });
+        render();
+      });
+    });
+  });
+</script>

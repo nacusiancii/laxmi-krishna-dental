@@ -1,0 +1,213 @@
+---
+// Prototype S2: Start with What You're Feeling — symptom-first patient matcher with an
+// empathetic "In pain today?" urgent path and a matched specialist card.
+import Icon from '../Icon.astro';
+import { clinic, doctors, services, whatsappNumber, img } from '../../data/clinic';
+
+const drSainath = doctors.find((d) => d.id === 'sainath')!;
+const drTulasi = doctors.find((d) => d.id === 'tulasi')!;
+
+const payload = services.map((s) => {
+  const dr = s.doctor === 'sainath' ? drSainath : s.doctor === 'tulasi' ? drTulasi : null;
+  const waText = dr
+    ? `Hello ${dr.shortName}, I'm experiencing "${s.symptom.toLowerCase()}" and would like to consult about ${s.name}.`
+    : `Hello Laxmi Krishna Dental, I'm experiencing "${s.symptom.toLowerCase()}" and would like to book a visit for ${s.name}.`;
+  return {
+    ...s,
+    doctorLabel: dr ? dr.name : `${drSainath.shortName} & ${drTulasi.shortName}`,
+    doctorShort: dr ? dr.shortName : 'the Clinic',
+    doctorRole: dr ? dr.shortRole : 'Family & Restorative Care',
+    doctorPhotos: dr ? [img(dr.photo)] : [img(drSainath.photo), img(drTulasi.photo)],
+    waHref: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(waText)}`,
+  };
+});
+---
+<section class="bg-cream-2 py-14" data-proto="symptom">
+  <div class="mx-auto max-w-[1120px] px-6">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="max-w-xl">
+        <span class="eyebrow">Patient-First Guide</span>
+        <h2 class="mt-2 font-serif text-3xl font-bold text-forest-deep md:text-4xl">
+          Not sure what it’s called? Tap what you’re feeling.
+        </h2>
+      </div>
+      <button
+        type="button"
+        data-sym-urgent
+        aria-pressed="false"
+        class="inline-flex items-center gap-2.5 rounded-full border border-gold bg-gold-soft px-4 py-2 text-sm font-semibold text-forest-deep transition-all hover:bg-forest hover:border-forest hover:text-white cursor-pointer"
+      >
+        <span class="h-2.5 w-2.5 rounded-full bg-gold"></span>
+        In pain today? Show urgent care
+      </button>
+    </div>
+
+    {/* Urgent banner (shown when toggled) */}
+    <div data-sym-banner class="mt-5 hidden">
+      <div class="rounded-2xl border border-gold-light bg-forest-deep p-4 text-white sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div>
+          <strong class="font-serif text-base text-gold-light">Toothache, swelling, or jaw injury today?</strong>
+          <p class="mt-0.5 text-sm text-white/85">Call us directly — we keep room for urgent pain so you aren’t left waiting overnight.</p>
+        </div>
+        <a class="btn btn-wa btn-sm mt-3 shrink-0 sm:mt-0" href={`tel:${clinic.phone}`}>
+          <Icon name="phone" width={16} /> Call {clinic.phoneShort}
+        </a>
+      </div>
+    </div>
+
+    {/* Symptom cards grid */}
+    <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" data-sym-grid>
+      {payload.map((s, idx) => (
+        <button
+          type="button"
+          data-sym-card={idx}
+          data-urgent={s.urgent ? 'true' : 'false'}
+          class:list={[
+            'sym-card flex flex-col justify-between rounded-2xl border p-4 text-left transition-all cursor-pointer',
+            idx === 3
+              ? 'border-forest bg-forest text-white shadow-md'
+              : 'border-line bg-surface text-forest-deep hover:border-gold-light hover:-translate-y-0.5',
+          ]}
+        >
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class:list={['text-[11px] font-bold uppercase tracking-wider', idx === 3 ? 'text-gold-light' : 'text-gold']}>
+                {s.urgent ? 'Urgent care' : s.tag}
+              </span>
+              <div class="flex -space-x-1.5">
+                {s.doctorPhotos.map((src) => (
+                  <span class="h-6 w-6 overflow-hidden rounded-full border border-gold-light bg-cream-2">
+                    <img src={src} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.2]" />
+                  </span>
+                ))}
+              </div>
+            </div>
+            <p class:list={['mt-2.5 font-serif text-[15px] font-semibold leading-snug', idx === 3 ? 'text-white' : 'text-forest-deep']}>
+              “{s.symptom}”
+            </p>
+          </div>
+          <span class:list={['mt-3 block text-xs font-semibold', idx === 3 ? 'text-white/75' : 'text-muted']}>
+            {s.name}
+          </span>
+        </button>
+      ))}
+    </div>
+
+    {/* Matched specialist card */}
+    <div class="mt-6 overflow-hidden rounded-3xl border border-gold-light bg-surface shadow-sm" data-sym-panel aria-live="polite">
+      <div class="grid md:grid-cols-[0.85fr_1.15fr]">
+        <div class="flex items-center gap-4 bg-forest-deep p-6 text-white">
+          <div class="flex shrink-0 -space-x-3" data-sym-photos>
+            {payload[3].doctorPhotos.map((src) => (
+              <span class="h-16 w-16 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2">
+                <img src={src} alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" />
+              </span>
+            ))}
+          </div>
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-gold-light">You’ll be seen by</span>
+            <h3 class="mt-0.5 font-serif text-xl font-bold text-white" data-sym-doc>{payload[3].doctorLabel}</h3>
+            <p class="text-xs text-white/80" data-sym-role>{payload[3].doctorRole}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col justify-between gap-4 p-6">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <strong class="font-serif text-xl text-forest-deep" data-sym-name>{payload[3].name}</strong>
+              <span class="rounded-full bg-sage-soft px-2.5 py-0.5 text-xs font-semibold text-forest" data-sym-symptom>
+                {payload[3].symptom}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-muted" data-sym-visit>
+              <strong class="text-forest-deep">First visit:</strong> {payload[3].firstVisit}
+            </p>
+            <p class="mt-1.5 text-sm text-muted" data-sym-know>{payload[3].goodToKnow}</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <a class="btn btn-wa btn-sm" data-sym-wa href={payload[3].waHref} target="_blank" rel="noopener">
+              <Icon name="whatsapp" width={16} /> <span data-sym-cta>WhatsApp {payload[3].doctorShort}</span>
+            </a>
+            <a class="btn btn-outline btn-sm" href={`tel:${clinic.phone}`}>
+              <Icon name="phone" width={16} /> Call {clinic.phoneShort}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-sym-json set:html={JSON.stringify(payload)} />
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-proto="symptom"]').forEach((root) => {
+    const data = JSON.parse(root.querySelector('[data-sym-json]')!.textContent!);
+    const cards = root.querySelectorAll<HTMLButtonElement>('[data-sym-card]');
+    const urgentBtn = root.querySelector<HTMLButtonElement>('[data-sym-urgent]')!;
+    const banner = root.querySelector<HTMLElement>('[data-sym-banner]')!;
+    const photosEl = root.querySelector('[data-sym-photos]')!;
+    const docEl = root.querySelector('[data-sym-doc]')!;
+    const roleEl = root.querySelector('[data-sym-role]')!;
+    const nameEl = root.querySelector('[data-sym-name]')!;
+    const symptomEl = root.querySelector('[data-sym-symptom]')!;
+    const visitEl = root.querySelector('[data-sym-visit]')!;
+    const knowEl = root.querySelector('[data-sym-know]')!;
+    const waEl = root.querySelector<HTMLAnchorElement>('[data-sym-wa]')!;
+    const ctaEl = root.querySelector('[data-sym-cta]')!;
+
+    function paint(idx: number) {
+      const s = data[idx];
+      cards.forEach((c) => {
+        const on = Number(c.dataset.symCard) === idx;
+        c.classList.toggle('border-forest', on);
+        c.classList.toggle('bg-forest', on);
+        c.classList.toggle('text-white', on);
+        c.classList.toggle('shadow-md', on);
+        c.classList.toggle('border-line', !on);
+        c.classList.toggle('bg-surface', !on);
+        c.classList.toggle('text-forest-deep', !on);
+        const tag = c.querySelector('span');
+        const quote = c.querySelector('p');
+        const foot = c.querySelector('span:last-child');
+        if (tag) { tag.classList.toggle('text-gold-light', on); tag.classList.toggle('text-gold', !on); }
+        if (quote) { quote.classList.toggle('text-white', on); quote.classList.toggle('text-forest-deep', !on); }
+        if (foot) { foot.classList.toggle('text-white/75', on); foot.classList.toggle('text-muted', !on); }
+      });
+      photosEl.innerHTML = s.doctorPhotos
+        .map((src: string) => `<span class="h-16 w-16 overflow-hidden rounded-full border-2 border-gold-light bg-cream-2"><img src="${src}" alt="" class="h-full w-full object-cover object-[44%_40%] scale-[2.1]" /></span>`)
+        .join('');
+      docEl.textContent = s.doctorLabel;
+      roleEl.textContent = s.doctorRole;
+      nameEl.textContent = s.name;
+      symptomEl.textContent = s.symptom;
+      visitEl.innerHTML = `<strong class="text-forest-deep">First visit:</strong> ${s.firstVisit}`;
+      knowEl.textContent = s.goodToKnow;
+      waEl.href = s.waHref;
+      ctaEl.textContent = `WhatsApp ${s.doctorShort}`;
+    }
+
+    cards.forEach((c) => c.addEventListener('click', () => paint(Number(c.dataset.symCard))));
+
+    let urgentOnly = false;
+    urgentBtn.addEventListener('click', () => {
+      urgentOnly = !urgentOnly;
+      urgentBtn.setAttribute('aria-pressed', String(urgentOnly));
+      urgentBtn.classList.toggle('bg-forest', urgentOnly);
+      urgentBtn.classList.toggle('border-forest', urgentOnly);
+      urgentBtn.classList.toggle('text-white', urgentOnly);
+      urgentBtn.classList.toggle('bg-gold-soft', !urgentOnly);
+      urgentBtn.classList.toggle('border-gold', !urgentOnly);
+      urgentBtn.classList.toggle('text-forest-deep', !urgentOnly);
+      banner.classList.toggle('hidden', !urgentOnly);
+
+      let firstVisible = -1;
+      cards.forEach((c) => {
+        const show = !urgentOnly || c.dataset.urgent === 'true';
+        c.classList.toggle('hidden', !show);
+        if (show && firstVisible === -1) firstVisible = Number(c.dataset.symCard);
+      });
+      if (firstVisible >= 0) paint(firstVisible);
+    });
+  });
+</script>

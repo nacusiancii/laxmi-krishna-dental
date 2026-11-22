@@ -78,4 +78,16 @@ import { services, serviceFilters } from '../data/clinic';
   });
   show(serviceCards[0]);
   detail.setAttribute('aria-live', 'polite'); // after the first fill, so page load isn't announced
+
+  // Clicking a treatment pill in CareStrip jumps straight here and opens that treatment
+  const allBtn = document.querySelector<HTMLButtonElement>('.filter-btn[data-filter="all"]');
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as Element).closest<HTMLAnchorElement>('[data-pick-service]');
+    if (!trigger) return;
+    const target = [...serviceCards].find((c) => c.querySelector<HTMLAnchorElement>('.service-link')?.dataset.select === trigger.dataset.pickService);
+    if (!target) return;
+    if (target.classList.contains('hidden') && allBtn) allBtn.click();
+    show(target);
+    target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  });
 </script>
