@@ -1,0 +1,35 @@
+---
+// Design lab: three ways to tie each treatment to the doctor who does it. Not linked from the site, and not indexed.
+import Base from '../../layouts/Base.astro';
+import SpecialistPanel from '../../components/prototypes/SpecialistPanel.astro';
+import TwoDoctorsOneTooth from '../../components/prototypes/TwoDoctorsOneTooth.astro';
+import ConcernToChat from '../../components/prototypes/ConcernToChat.astro';
+
+const protos = [
+  { id: 'A', name: 'Specialist panel', note: "Today's chips and panel, but the panel answers: who will treat me, and what happens at visit one. Smallest step from live.", Proto: SpecialistPanel },
+  { id: 'B', name: 'Two doctors, one tooth', note: 'Tells the logo\'s story: bracket for Dr. Tulasi, implant root for Dr. Sainath. Full desk photos, nameplates uncropped.', Proto: TwoDoctorsOneTooth },
+  { id: 'C', name: 'Concern → chat', note: "Starts from what the patient feels. Shows the exact WhatsApp message, to the right doctor, in English or Telugu.", Proto: ConcernToChat },
+];
+---
+<Base title="Treatment prototypes · Laxmi Krishna Dental" noindex>
+  <div class="sticky top-0 z-50 border-b border-line bg-cream/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[1120px] flex-wrap items-center gap-x-4 gap-y-1 px-6 py-3">
+      <strong class="font-serif text-lg text-forest-deep">Treatment prototypes</strong>
+      {protos.map((p) => <a class="text-sm font-semibold text-muted hover:text-forest" href={`#p-${p.id}`}>{p.id} · {p.name}</a>)}
+      <a class="ml-auto text-sm text-muted underline" href={`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}lab/`}>← Hero lab</a>
+    </div>
+  </div>
+  <p class="mx-auto max-w-[1120px] px-6 pt-4 text-sm text-muted">First-visit steps and the Telugu are drafts. The doctors should check them before any of this goes live.</p>
+  <main>
+    {protos.map(({ id, name, note, Proto }) => (
+      <section class="border-b-8 border-cream-2 scroll-mt-16" id={`p-${id}`}>
+        <div class="mx-auto flex max-w-[1120px] flex-wrap items-baseline gap-x-3 gap-y-1 px-6 pt-6">
+          <span class="rounded-md bg-forest px-2 py-0.5 text-sm font-bold text-white">{id}</span>
+          <strong class="text-forest-deep">{name}</strong>
+          <span class="text-sm text-muted">{note}</span>
+        </div>
+        <Proto />
+      </section>
+    ))}
+  </main>
+</Base>

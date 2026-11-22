@@ -1,0 +1,88 @@
+---
+// Prototype A: the live chips-and-panel, but the panel answers "who will treat me, and what happens first?"
+import Icon from '../Icon.astro';
+import Avatar from './Avatar.astro';
+import { services, care, doctorById, whatsappLink, clinic } from '../../data/clinic';
+
+const hello = (by: string[]) => (by.length > 1 ? 'Hello doctors' : `Hello ${doctorById(by[0] as any).short}`);
+---
+<section class="py-16" id="proto-a">
+  <div class="wrap">
+    <div class="mb-8 max-w-2xl">
+      <span class="eyebrow">Our Services</span>
+      <h2 class="mt-2 text-[clamp(1.8rem,3.4vw,2.5rem)]">Pick a treatment. Meet the doctor who does it.</h2>
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]" role="tablist" aria-label="Treatments">
+      {services.map((s, i) => (
+        <button role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-tab={i}
+          class="a-chip flex shrink-0 items-center gap-2 rounded-full border border-line bg-surface py-1.5 pl-1.5 pr-4 text-sm font-semibold text-ink transition-colors">
+          <span class="flex -space-x-3">{care[s.value].by.map((id) => <Avatar id={id} size={30} />)}</span>
+          {s.name}
+        </button>
+      ))}
+    </div>
+
+    {services.map((s, i) => {
+      const c = care[s.value];
+      const docs = c.by.map(doctorById);
+      return (
+        <div class="a-panel mt-4 grid gap-6 rounded-[var(--radius)] border border-line bg-surface p-6 shadow-sm md:grid-cols-[1.1fr_1.3fr_auto] md:items-start md:p-8"
+          role="tabpanel" data-panel={i} hidden={i !== 0}>
+          <div class="flex items-center gap-4">
+            <span class="flex -space-x-5">{c.by.map((id) => <Avatar id={id} size={84} />)}</span>
+            <div>
+              <div class="text-xs font-bold uppercase tracking-[0.12em] text-gold">{docs.length > 1 ? 'Seen by either doctor' : 'You will be seen by'}</div>
+              <h3 class="mt-1 text-xl">{docs.map((d) => d.short).join(' or ')}</h3>
+              <p class="text-sm text-muted">{docs.length > 1 ? 'Whoever is in at your slot. Both are MDS specialists.' : docs[0].specialty}</p>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-sans text-sm font-bold text-forest-deep">Your first visit for {s.name.toLowerCase()}</h4>
+            <ol class="mt-3 space-y-2">
+              {c.steps.map((step, n) => (
+                <li class="flex gap-3 text-sm text-ink">
+                  <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sage-soft text-xs font-bold text-forest">{n + 1}</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div class="flex flex-col gap-2 md:w-56">
+            <a class="btn btn-wa justify-center" target="_blank" rel="noopener"
+              href={whatsappLink(`${hello(c.by)}, I would like to ask about ${s.name}.`)}>
+              <Icon name="whatsapp" /> Ask {docs.length > 1 ? 'the doctors' : docs[0].short}
+            </a>
+            <a class="btn btn-outline justify-center" href={`tel:${clinic.phone}`}><Icon name="phone" /> Call the clinic</a>
+          </div>
+
+          {c.urgent && (
+            <p class="flex items-start gap-3 rounded-xl bg-gold-soft p-4 text-sm text-ink md:col-span-3">
+              <Icon name="phone" width={18} class="mt-0.5 shrink-0 text-gold" />
+              <span>{c.urgent} <a class="font-bold text-forest underline" href={`tel:${clinic.phone}`}>{clinic.phoneDisplay}</a></span>
+            </p>
+          )}
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<style>
+  .a-chip[aria-selected='true'] { background: var(--color-forest); border-color: var(--color-forest); color: #fff; }
+  .a-panel:not([hidden]) > * { animation: rise 0.4s var(--ease-out) backwards; }
+  .a-panel:not([hidden]) > *:nth-child(2) { animation-delay: 0.06s; }
+  .a-panel:not([hidden]) > *:nth-child(3) { animation-delay: 0.12s; }
+</style>
+
+<script>
+  const root = document.getElementById('proto-a')!;
+  const tabs = root.querySelectorAll<HTMLButtonElement>('[data-tab]');
+  const panels = root.querySelectorAll<HTMLElement>('[data-panel]');
+  tabs.forEach((tab) => tab.addEventListener('click', () => {
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    panels.forEach((p) => (p.hidden = p.dataset.panel !== tab.dataset.tab));
+  }));
+</script>
